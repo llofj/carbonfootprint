@@ -1,0 +1,39 @@
+-- 插入用户数据
+INSERT INTO users (id, username, password, email) VALUES ('1', 'llofj', '123456', '3024174331@qq.com');
+INSERT INTO users (id, username, password, email) VALUES('2',  'test', '123456', '2022300004037@whu.edu.cn');
+INSERT INTO users (id, username, password, email) VALUES ('3', 'lyx', '123456', '3024174331');
+
+-- 插入碳排放记录数据
+INSERT INTO carbon_emissions (user_id, category, sub_category, amount, date) VALUES
+(1, '衣', '衣物洗涤', 2.5, '2023-10-01'),
+(1, '食', '肉类消费', 5.0, '2023-10-01'),
+(2, '住', '电力使用', 3.0, '2023-10-01');
+
+-- 插入虚拟宠物数据
+INSERT INTO virtual_pets (user_id, name, level, health, coins) VALUES
+(1, '小绿', 1, '健康', 100),
+(2, '小蓝', 2, '健康', 150);
+
+-- 插入成就数据
+INSERT INTO achievements (user_id, achievement_name, date) VALUES
+(1, '绿色饮食达人', '2023-10-01'),
+(2, '低碳通勤者', '2023-10-01');
+
+-- 插入排名数据
+INSERT INTO leaderboard (user_id, carbon_reduction, date) VALUES
+(1, 10.5, '2023-10-01'),
+(2, 8.0, '2023-10-01');
+
+ALTER TABLE virtual_pets ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE virtual_pets ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+CREATE INDEX idx_step_records_user_id ON step_records(user_id);
+CREATE INDEX idx_step_records_date ON step_records(date);
+
+-- 更新成就表，添加achievement_id字段
+ALTER TABLE achievements ADD COLUMN achievement_id VARCHAR(50);
+
+-- 修改排行榜表
+ALTER TABLE leaderboard ADD COLUMN date DATE DEFAULT CURRENT_DATE;
+
+
