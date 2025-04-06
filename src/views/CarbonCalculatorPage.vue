@@ -5,6 +5,43 @@
       <h1>碳足迹计算器</h1>
       <p class="description">通过记录日常活动，了解您的碳排放量</p>
       
+      <!-- 添加碳排放系数查看按钮 -->
+      <div class="emission-factors-button" @click="showEmissionFactors = true">
+        <i class="fas fa-info-circle"></i>
+        <span>查看碳排放系数</span>
+      </div>
+      
+      <!-- 碳排放系数弹窗 -->
+      <div class="emission-factors-modal" v-if="showEmissionFactors" @click.self="showEmissionFactors = false">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>碳排放系数表</h2>
+            <button class="close-button" @click="showEmissionFactors = false">×</button>
+          </div>
+          <div class="modal-body">
+            <div v-for="(category, categoryName) in categories" :key="categoryName" class="category-section">
+              <h3>{{ categoryName }}</h3>
+              <table class="factors-table">
+                <thead>
+                  <tr>
+                    <th>项目</th>
+                    <th>系数 (kgCO₂e)</th>
+                    <th>单位</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="item in category" :key="item.name">
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.factor }}</td>
+                    <td>{{ item.unit }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div class="calculator-content">
         <!-- 左侧分类选择区 -->
         <div class="categories-section">
@@ -141,6 +178,7 @@ export default {
   data() {
     return {
       activeCategory: '衣',
+      showEmissionFactors: false,
       categories: {
         '衣': [
           { name: '涤纶织物', icon: 'textile.png', unit: '千克', factor: 25.7 },
@@ -167,13 +205,22 @@ export default {
           { name: '扁豆', icon: 'beans.png', unit: '千克', factor: 0.8 }
         ],
         '住': [
-          { name: '用水', icon: 'water.png', unit: '立方米', factor: 0.9 }
+          { name: '水', icon: 'water.png', unit: '立方米', factor: 0.9 },
+          { name: '电', icon: 'electricity.png', unit: '立方米', factor: 0.7 },
+          { name: '天然气', icon: 'natural_gas.png', unit: '立方米', factor: 2.1 }
         ],
         '行': [
-          { name: '轮船', icon: 'ship.png', unit: '公里', factor: 0.0 }
+          { name: '轮船', icon: 'ship.png', unit: '公里', factor: 0.03 },
+          { name: '公交车', icon: 'bus.png', unit: '公里', factor: 0.1 },
+          { name: '私家电车', icon: 'electric-car.png', unit: '公里', factor: 0.05 },
+          { name: '私家油车', icon: 'gas-car.png', unit: '公里', factor: 0.25 },
+          { name: '火车', icon: 'train.png', unit: '公里', factor: 0.06 },
+          { name: '飞机', icon: 'plane.png', unit: '公里', factor: 0.25 }
         ],
         '用': [
-          { name: '塑料袋', icon: 'plastic.png', unit: '个', factor: 0.0 }
+          { name: '塑料袋', icon: 'plastic.png', unit: '个', factor: 0.02 },
+          { name: '纸巾', icon: 'tissue.png', unit: '包(10张)', factor: 0.8 },
+          { name: '电子设备', icon: 'device.png', unit: '小时', factor: 1.2 }
         ]
       },
       calculationItems: [],
@@ -486,6 +533,110 @@ h1 {
   margin-top: 0.5rem;
 }
 
+/* 碳排放系数按钮样式 */
+.emission-factors-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #17a2b8;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 auto 1rem;
+  width: fit-content;
+  transition: background-color 0.3s;
+}
+
+.emission-factors-button:hover {
+  background-color: #138496;
+}
+
+.emission-factors-button i {
+  margin-right: 0.5rem;
+}
+
+/* 弹窗样式 */
+.emission-factors-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 800px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #17a2b8;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.modal-body {
+  padding: 1rem;
+}
+
+.category-section {
+  margin-bottom: 1.5rem;
+}
+
+.category-section h3 {
+  color: #17a2b8;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.factors-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.factors-table th, .factors-table td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.factors-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+.factors-table tr:hover {
+  background-color: #f8f9fa;
+}
+
 @media (max-width: 768px) {
   .calculator-content {
     flex-direction: column;
@@ -507,6 +658,15 @@ h1 {
   
   .icon-text {
     font-size: 1.2rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+  }
+  
+  .factors-table th, .factors-table td {
+    padding: 0.3rem;
+    font-size: 0.9rem;
   }
 }
 </style>
