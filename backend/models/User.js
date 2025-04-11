@@ -1,11 +1,12 @@
 // backend/models/User.js
 const pool = require('../config/db');
+const bcrypt = require('bcrypt');
 
 const User = {
   async create(username, password, email) {
     const result = await pool.query(
       'INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *',
-      [username.trim(), password.trim(), email.trim()]  // 存储前进行trim
+      [username.trim(), password, email.trim()]  // 密码已经在控制器中加密，这里不需要trim
     );
     return result.rows[0];
   },
@@ -103,7 +104,10 @@ const User = {
       // 如果不存在，创建测试用户
       if (!userCheck) {
         console.log('创建测试用户...');
-        const testUser = await this.create('test', '123456', 'test@example.com');
+        // 对测试用户密码进行加密
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash('123456', salt);
+        const testUser = await this.create('test', hashedPassword, 'test@example.com');
         console.log('测试用户创建成功:', testUser);
         return testUser;
       }

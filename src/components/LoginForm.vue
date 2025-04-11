@@ -61,6 +61,9 @@
         <i class="fas fa-exclamation-circle"></i>
         {{ errorMessage }}
       </div>
+      <div class="register-link">
+        没有账号? <router-link to="/register">立即注册</router-link>
+      </div>
     </form>
   </div>
 </template>
@@ -325,18 +328,27 @@ button[type="submit"]:disabled {
 .error-container {
   margin-top: 1rem;
   padding: 0.75rem;
-  background-color: #fff5f5;
-  border: 1px solid #fed7d7;
-  border-radius: 6px;
-  color: #dc3545;
+  background-color: #ffebee;
+  color: #c62828;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.register-link {
+  margin-top: 1rem;
+  text-align: center;
   font-size: 0.9rem;
 }
 
-.error-container i {
-  font-size: 1rem;
+.register-link a {
+  color: #4CAF50;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
 }
 
 @keyframes spin {

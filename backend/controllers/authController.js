@@ -26,6 +26,39 @@ const validateLoginInput = (username, password, captcha) => {
   };
 };
 
+// 验证注册输入
+const validateRegisterInput = (username, password, email, captcha) => {
+  const errors = {};
+  
+  if (!username || username.trim() === '') {
+    errors.username = '用户名不能为空';
+  } else if (username.length < 3) {
+    errors.username = '用户名至少需要3个字符';
+  }
+  
+  if (!email || email.trim() === '') {
+    errors.email = '邮箱不能为空';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.email = '邮箱格式不正确';
+  }
+  
+  if (!password) {
+    errors.password = '密码不能为空';
+  } else if (password.length < 6) {
+    errors.password = '密码至少需要6个字符';
+  }
+  
+  // 保持验证码固定为0000
+  if (!captcha || captcha !== '0000') {
+    errors.captcha = '验证码错误';
+  }
+  
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors
+  };
+};
+
 // 调试辅助函数
 const debugLog = (message, data) => {
   console.log(`[DEBUG] ${message}`, data || '');
@@ -33,22 +66,41 @@ const debugLog = (message, data) => {
 
 exports.register = async (req, res) => {
   try {
-    const { username, password, email } = req.body;
+    const { username, password, email, captcha } = req.body;
     
     debugLog('注册请求数据:', { username, email });
     
-    // Check if user already exists
-    const existingUser = await User.findByUsername(username);
-    if (existingUser) {
-      return res.status(400).json({ message: 'Username already exists' });
+    // 验证输入
+    const { isValid, errors } = validateRegisterInput(username, password, email, captcha);
+    if (!isValid) {
+      return res.status(400).json({ message: Object.values(errors)[0], errors });
     }
     
-    // 直接使用明文密码（不安全，仅用于测试）
-    const user = await User.create(username, password, email);
-    res.status(201).json(user);
+    // 检查用户名是否已存在
+    const existingUser = await User.findByUsername(username);
+    if (existingUser) {
+      return res.status(409).json({ message: '用户名已存在' });
+    }
+    
+    // 对密码进行加密
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    // 创建新用户
+    const user = await User.create(username, hashedPassword, email);
+    
+    // 返回成功响应，不包含密码
+    res.status(201).json({
+      message: '注册成功',
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email
+      }
+    });
   } catch (error) {
-    console.error('Register error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('注册错误:', error);
+    res.status(500).json({ message: '服务器错误', error: error.message });
   }
 };
 
@@ -100,8 +152,7 @@ exports.login = async (req, res) => {
           token,
           user: {
             id: testUser.id,
-            username: testUser.username,
-            email: testUser.email
+            username: testUser.username
           }
         });
       }
@@ -109,26 +160,14 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: '用户名或密码错误' });
     }
     
-    debugLog('找到用户:', { id: user.id, username: user.username });
-    
-    // 5. 密码验证 - 明文对比，确保比较前也进行trim
-    const isPasswordValid = await User.validatePassword(password, user.password);
-    
-    debugLog('密码验证结果:', isPasswordValid);
-    debugLog('输入密码:', `"${password.trim()}"`, '存储密码:', `"${user.password.trim()}"`);
-    
+    // 5. 验证密码
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      console.log(`登录失败: 用户 ${username} 输入的密码不正确`);
       return res.status(401).json({ message: '用户名或密码错误' });
     }
     
-    // 6. 尝试更新最后登录时间
-    try {
-      await User.updateLastLogin(user.id);
-    } catch (error) {
-      // 即使更新失败也继续登录流程
-      console.error('更新最后登录时间失败:', error);
-    }
+    // 6. 更新最后登录时间
+    await User.updateLastLogin(user.id);
     
     // 7. 生成JWT令牌
     const token = jwt.sign(
@@ -140,24 +179,18 @@ exports.login = async (req, res) => {
       { expiresIn: '24h' }
     );
     
-    // 8. 返回登录成功响应
-    debugLog('登录成功, 生成的Token:', { token: token.substring(0, 20) + '...' });
-    
+    // 8. 返回成功响应
     res.json({ 
       success: true,
       token,
       user: {
         id: user.id,
-        username: user.username,
-        email: user.email
+        username: user.username
       }
     });
   } catch (error) {
-    console.error('登录处理错误:', error);
-    res.status(500).json({ 
-      message: '服务器错误，请稍后再试',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    console.error('登录错误:', error);
+    res.status(500).json({ message: '服务器错误', error: error.message });
   }
 };
 
