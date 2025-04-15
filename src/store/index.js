@@ -1,5 +1,6 @@
 // src/store/index.js
 import { createStore } from 'vuex';
+import { getAPI } from '@/config/api';
 
 export default createStore({
   state: {
@@ -10,7 +11,8 @@ export default createStore({
       health: '健康'
     },
     achievements: [],
-    leaderboard: []
+    leaderboard: [],
+    userCarbonReduction: 0
   },
   mutations: {
     setUser(state, user) {
@@ -24,6 +26,9 @@ export default createStore({
     },
     setLeaderboard(state, leaderboard) {
       state.leaderboard = leaderboard;
+    },
+    setUserCarbonReduction(state, amount) {
+      state.userCarbonReduction = amount;
     }
   },
   actions: {
@@ -43,6 +48,24 @@ export default createStore({
         { name: '用户B', reduction: 4.8 }
       ];
       commit('setLeaderboard', leaderboard);
+    },
+    async fetchUserCarbonReduction({ commit }) {
+      try {
+        const response = await getAPI().get('/achievement/carbon-reduction');
+        if (response.data && response.data.carbon_reduction !== undefined) {
+          commit('setUserCarbonReduction', response.data.carbon_reduction);
+        }
+      } catch (error) {
+        console.error('获取用户减碳总量失败:', error);
+      }
+    }
+  },
+  getters: {
+    isLoggedIn(state) {
+      return !!state.user;
+    },
+    currentUserCarbonReduction(state) {
+      return state.userCarbonReduction;
     }
   }
 });

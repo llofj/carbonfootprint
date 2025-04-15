@@ -10,8 +10,14 @@ const routes = [
   },
   {
     path: '/calculator',
-    name: 'Calculator',
+    name: 'CarbonCalculator',
     component: () => import('@/views/CarbonCalculatorPage.vue')
+  },
+  {
+    path: '/carbon-reduction',
+    name: 'CarbonReduction',
+    component: () => import('@/views/CarbonReductionPage.vue'),
+    meta: { requiresAuth: true }
   },
   {
     path: '/pet',

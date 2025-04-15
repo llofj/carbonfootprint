@@ -166,6 +166,46 @@ exports.getEmissionFactors = (req, res) => {
   res.json({ factors: emissionFactors, units: unitMap });
 };
 
+exports.saveReduction = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { activities } = req.body;
+    
+    if (!activities || !Array.isArray(activities) || activities.length === 0) {
+      return res.status(400).json({ error: '缺少必要参数' });
+    }
+
+    // 计算总减碳量
+    const totalReduction = activities.reduce((sum, activity) => {
+      return sum + (activity.reduction || 0);
+    }, 0);
+
+    // 保存减碳记录
+    const result = await CarbonEmission.create({
+      userId,
+      category: 'reduction',
+      subCategory: 'calculator',
+      amount: -totalReduction, // 使用负值表示减碳
+      date: new Date().toISOString().split('T')[0]
+    });
+
+    // 更新排行榜
+    const Leaderboard = require('../models/Leaderboard');
+    await Leaderboard.updateUserRank(userId);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        ...result,
+        totalReduction
+      }
+    });
+  } catch (error) {
+    console.error('保存减碳记录失败:', error);
+    res.status(500).json({ error: '保存减碳记录失败' });
+  }
+};
+
 // 导出用于测试的常量
 exports.constants = {
   emissionFactors,

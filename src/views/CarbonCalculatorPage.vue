@@ -7,165 +7,173 @@
           <i class="fas fa-home"></i> 返回主页
         </button>
       </div>
-      <h1>碳足迹计算器</h1>
-      <p class="description">通过记录日常活动，了解您的碳排放量</p>
-      
-      <!-- 添加碳排放系数查看按钮 -->
-      <div class="emission-factors-button" @click="showEmissionFactors = true">
-        <i class="fas fa-info-circle"></i>
-        <span>查看碳排放系数</span>
-      </div>
-      
-      <!-- 碳排放系数弹窗 -->
-      <div class="emission-factors-modal" v-if="showEmissionFactors" @click.self="showEmissionFactors = false">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2>碳排放系数表</h2>
-            <button class="close-button" @click="showEmissionFactors = false">×</button>
-          </div>
-          <div class="modal-body">
-            <div v-for="(category, categoryName) in categories" :key="categoryName" class="category-section">
-              <h3>{{ categoryName }}</h3>
-              <table class="factors-table">
-                <thead>
-                  <tr>
-                    <th>项目</th>
-                    <th>系数 (kgCO₂e)</th>
-                    <th>单位</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in category" :key="item.name">
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.factor }}</td>
-                    <td>{{ item.unit }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+      <div class="page-content">
+        <h1 class="page-title">碳排放计算器</h1>
+        <p class="description">通过记录日常活动，了解您的碳排放量</p>
+        <div class="switch-calculator">
+          <button class="switch-btn" @click="switchToReductionCalculator">
+            <i class="fas fa-exchange-alt"></i>
+            切换到减碳计算器
+          </button>
         </div>
-      </div>
       
-      <div class="calculator-content">
-        <!-- 左侧分类选择区 -->
-        <div class="categories-section">
-          <div class="category-header">
-            <span>类型</span>
-          </div>
-
-          <div class="category-list">
-            <!-- 衣 -->
-            <div class="category-item" :class="{ active: activeCategory === '衣' }" @click="setActiveCategory('衣')">
-              <span class="category-icon">衣</span>
-              <div class="category-options">
-                <div class="option-item" v-for="(item, index) in categories['衣']" :key="'衣'+index"
-                  @click.stop="selectItem('衣', item)">
-                  <div class="option-icon">
-                    <span class="icon-text">{{ item.name.charAt(0) }}</span>
-                  </div>
-                  <span>{{ item.name }}</span>
-                </div>
-              </div>
+        <!-- 添加碳排放系数查看按钮 -->
+        <div class="emission-factors-button" @click="showEmissionFactors = true">
+          <i class="fas fa-info-circle"></i>
+          <span>查看碳排放系数</span>
+        </div>
+        
+        <!-- 碳排放系数弹窗 -->
+        <div class="emission-factors-modal" v-if="showEmissionFactors" @click.self="showEmissionFactors = false">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2>碳排放系数表</h2>
+              <button class="close-button" @click="showEmissionFactors = false">×</button>
             </div>
-
-            <!-- 食 -->
-            <div class="category-item" :class="{ active: activeCategory === '食' }" @click="setActiveCategory('食')">
-              <span class="category-icon">食</span>
-              <div class="category-options">
-                <div class="option-item" v-for="(item, index) in categories['食']" :key="'食'+index"
-                  @click.stop="selectItem('食', item)">
-                  <div class="option-icon">
-                    <span class="icon-text">{{ item.name.charAt(0) }}</span>
-                  </div>
-                  <span>{{ item.name }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 住 -->
-            <div class="category-item" :class="{ active: activeCategory === '住' }" @click="setActiveCategory('住')">
-              <span class="category-icon">住</span>
-              <div class="category-options">
-                <div class="option-item" v-for="(item, index) in categories['住']" :key="'住'+index"
-                  @click.stop="selectItem('住', item)">
-                  <div class="option-icon">
-                    <span class="icon-text">{{ item.name.charAt(0) }}</span>
-                  </div>
-                  <span>{{ item.name }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 行 -->
-            <div class="category-item" :class="{ active: activeCategory === '行' }" @click="setActiveCategory('行')">
-              <span class="category-icon">行</span>
-              <div class="category-options">
-                <div class="option-item" v-for="(item, index) in categories['行']" :key="'行'+index"
-                  @click.stop="selectItem('行', item)">
-                  <div class="option-icon">
-                    <span class="icon-text">{{ item.name.charAt(0) }}</span>
-                  </div>
-                  <span>{{ item.name }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 用 -->
-            <div class="category-item" :class="{ active: activeCategory === '用' }" @click="setActiveCategory('用')">
-              <span class="category-icon">用</span>
-              <div class="category-options">
-                <div class="option-item" v-for="(item, index) in categories['用']" :key="'用'+index"
-                  @click.stop="selectItem('用', item)">
-                  <div class="option-icon">
-                    <span class="icon-text">{{ item.name.charAt(0) }}</span>
-                  </div>
-                  <span>{{ item.name }}</span>
-                </div>
+            <div class="modal-body">
+              <div v-for="(category, categoryName) in categories" :key="categoryName" class="category-section">
+                <h3>{{ categoryName }}</h3>
+                <table class="factors-table">
+                  <thead>
+                    <tr>
+                      <th>项目</th>
+                      <th>系数 (kgCO₂e)</th>
+                      <th>单位</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in category" :key="item.name">
+                      <td>{{ item.name }}</td>
+                      <td>{{ item.factor }}</td>
+                      <td>{{ item.unit }}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
+        
+        <div class="calculator-content">
+          <!-- 左侧分类选择区 -->
+          <div class="categories-section">
+            <div class="category-header">
+              <span>类型</span>
+            </div>
 
-        <!-- 右侧计算区 -->
-        <div class="calculation-section">
-          <div class="calculation-header">
-            <span class="header-left">排放源</span>
-            <span class="header-right">排放量</span>
-          </div>
-
-          <div class="calculation-note">
-            <span>*输入数据最多可支持三位数(单位:kgCO₂e)</span>
-          </div>
-          
-          <div class="calculation-list">
-            <!-- 已添加的计算项 -->
-            <div v-for="(item, index) in calculationItems" :key="index" class="calculation-item">
-              <div class="item-category">{{ item.category }}</div>
-              <div class="item-name">{{ item.name }}</div>
-              <div class="item-value">
-                <input 
-                  type="number" 
-                  v-model="item.value" 
-                  min="0" 
-                  max="999"
-                  @input="calculateTotal"
-                />
-                <span class="item-unit">{{ item.unit }}</span>
+            <div class="category-list">
+              <!-- 衣 -->
+              <div class="category-item" :class="{ active: activeCategory === '衣' }" @click="setActiveCategory('衣')">
+                <span class="category-icon">衣</span>
+                <div class="category-options">
+                  <div class="option-item" v-for="(item, index) in categories['衣']" :key="'衣'+index"
+                    @click.stop="selectItem('衣', item)">
+                    <div class="option-icon">
+                      <span class="icon-text">{{ item.name.charAt(0) }}</span>
+                    </div>
+                    <span>{{ item.name }}</span>
+                  </div>
+                </div>
               </div>
-              <div class="item-emission">{{ item.emission }}</div>
-              <button class="remove-btn" @click="removeItem(index)">×</button>
+
+              <!-- 食 -->
+              <div class="category-item" :class="{ active: activeCategory === '食' }" @click="setActiveCategory('食')">
+                <span class="category-icon">食</span>
+                <div class="category-options">
+                  <div class="option-item" v-for="(item, index) in categories['食']" :key="'食'+index"
+                    @click.stop="selectItem('食', item)">
+                    <div class="option-icon">
+                      <span class="icon-text">{{ item.name.charAt(0) }}</span>
+                    </div>
+                    <span>{{ item.name }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 住 -->
+              <div class="category-item" :class="{ active: activeCategory === '住' }" @click="setActiveCategory('住')">
+                <span class="category-icon">住</span>
+                <div class="category-options">
+                  <div class="option-item" v-for="(item, index) in categories['住']" :key="'住'+index"
+                    @click.stop="selectItem('住', item)">
+                    <div class="option-icon">
+                      <span class="icon-text">{{ item.name.charAt(0) }}</span>
+                    </div>
+                    <span>{{ item.name }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 行 -->
+              <div class="category-item" :class="{ active: activeCategory === '行' }" @click="setActiveCategory('行')">
+                <span class="category-icon">行</span>
+                <div class="category-options">
+                  <div class="option-item" v-for="(item, index) in categories['行']" :key="'行'+index"
+                    @click.stop="selectItem('行', item)">
+                    <div class="option-icon">
+                      <span class="icon-text">{{ item.name.charAt(0) }}</span>
+                    </div>
+                    <span>{{ item.name }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 用 -->
+              <div class="category-item" :class="{ active: activeCategory === '用' }" @click="setActiveCategory('用')">
+                <span class="category-icon">用</span>
+                <div class="category-options">
+                  <div class="option-item" v-for="(item, index) in categories['用']" :key="'用'+index"
+                    @click.stop="selectItem('用', item)">
+                    <div class="option-icon">
+                      <span class="icon-text">{{ item.name.charAt(0) }}</span>
+                    </div>
+                    <span>{{ item.name }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="calculation-total">
-            <div class="total-label">总排放量</div>
-            <div class="total-value">{{ totalEmission }}kgCO₂e</div>
-          </div>
+          <!-- 右侧计算区 -->
+          <div class="calculation-section">
+            <div class="calculation-header">
+              <span class="header-left">排放源</span>
+              <span class="header-right">排放量</span>
+            </div>
 
-          <div class="offset-message" v-if="totalEmission > 0">
-            您需要种植 <span class="tree-count">{{ offsetTrees }}</span> 棵树
-            <div class="offset-note">抵消这些碳排放，实现碳中和</div>
+            <div class="calculation-note">
+              <span>*输入数据最多可支持三位数(单位:kgCO₂e)</span>
+            </div>
+            
+            <div class="calculation-list">
+              <!-- 已添加的计算项 -->
+              <div v-for="(item, index) in calculationItems" :key="index" class="calculation-item">
+                <div class="item-category">{{ item.category }}</div>
+                <div class="item-name">{{ item.name }}</div>
+                <div class="item-value">
+                  <input 
+                    type="number" 
+                    v-model="item.value" 
+                    min="0" 
+                    max="999"
+                    @input="calculateTotal"
+                  />
+                  <span class="item-unit">{{ item.unit }}</span>
+                </div>
+                <div class="item-emission">{{ item.emission }}</div>
+                <button class="remove-btn" @click="removeItem(index)">×</button>
+              </div>
+            </div>
+
+            <div class="calculation-total">
+              <div class="total-label">总排放量</div>
+              <div class="total-value">{{ totalEmission }}kgCO₂e</div>
+            </div>
+
+            <div class="offset-message" v-if="totalEmission > 0">
+              您需要种植 <span class="tree-count">{{ offsetTrees }}</span> 棵树
+              <div class="offset-note">抵消这些碳排放，实现碳中和</div>
+            </div>
           </div>
         </div>
       </div>
@@ -175,10 +183,27 @@
 
 <script>
 import Navbar from '@/components/Navbar.vue';
+import { useRouter } from 'vue-router'
 
 export default {
   components: {
     Navbar
+  },
+  setup() {
+    const router = useRouter()
+
+    const switchToReductionCalculator = () => {
+      router.push('/carbon-reduction')
+    }
+    
+    const goHome = () => {
+      router.push('/')
+    }
+
+    return {
+      switchToReductionCalculator,
+      goHome
+    }
   },
   data() {
     return {
@@ -234,9 +259,6 @@ export default {
     };
   },
   methods: {
-    goHome() {
-      this.$router.push('/');
-    },
     setActiveCategory(category) {
       this.activeCategory = category;
     },
@@ -297,24 +319,97 @@ export default {
   max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
+  position: relative;
 }
 
-h1 {
+.page-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.page-title {
   color: #1e3d59;
   text-align: center;
   margin-bottom: 0.5rem;
+  font-size: 28px;
 }
 
 .description {
   text-align: center;
   color: #666;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+}
+
+.back-to-home {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+.back-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: background-color 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.back-btn:hover {
+  background-color: #388E3C;
+}
+
+.switch-calculator {
+  margin: 0 0 1.5rem 0;
+}
+
+.switch-btn {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #3498db, #1abc9c);
+  border: none;
+  border-radius: 25px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(26, 188, 156, 0.3);
+}
+
+.switch-btn:hover {
+  background: linear-gradient(135deg, #2980b9, #16a085);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(26, 188, 156, 0.4);
+}
+
+.switch-btn i {
+  margin-right: 8px;
+  animation: spin 7s infinite linear;
+  opacity: 0.9;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(90deg); }
+  50% { transform: rotate(180deg); }
+  75% { transform: rotate(270deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .calculator-content {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  width: 100%;
 }
 
 /* 左侧分类区 */
@@ -676,30 +771,5 @@ h1 {
     padding: 0.3rem;
     font-size: 0.9rem;
   }
-}
-
-.back-to-home {
-  position: absolute;
-  top: 80px;
-  left: 20px;
-}
-
-.back-btn {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 8px 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  transition: background-color 0.3s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.back-btn:hover {
-  background-color: #388E3C;
 }
 </style>

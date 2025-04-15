@@ -16,5 +16,6 @@ router.get('/user', carbonController.getUserEmissions);
 router.get('/user/daily', carbonController.getUserDailyEmissions);
 router.get('/user/total', carbonController.getTotalEmission);
 router.get('/factors', carbonController.getEmissionFactors);
+router.post('/reduction', carbonController.saveReduction);
 
 module.exports = router;
