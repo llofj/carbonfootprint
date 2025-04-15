@@ -2,6 +2,11 @@
   <div class="calculator-page">
     <Navbar />
     <div class="calculator-container">
+      <div class="back-to-home">
+        <button @click="goHome" class="back-btn">
+          <i class="fas fa-home"></i> 返回主页
+        </button>
+      </div>
       <h1>碳足迹计算器</h1>
       <p class="description">通过记录日常活动，了解您的碳排放量</p>
       
@@ -229,6 +234,9 @@ export default {
     };
   },
   methods: {
+    goHome() {
+      this.$router.push('/');
+    },
     setActiveCategory(category) {
       this.activeCategory = category;
     },
@@ -668,5 +676,30 @@ h1 {
     padding: 0.3rem;
     font-size: 0.9rem;
   }
+}
+
+.back-to-home {
+  position: absolute;
+  top: 80px;
+  left: 20px;
+}
+
+.back-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: background-color 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.back-btn:hover {
+  background-color: #388E3C;
 }
 </style>

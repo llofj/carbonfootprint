@@ -5,6 +5,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const getApiBaseUrl = () => {
   // 获取当前主机名
   const currentHost = window.location.hostname;
+  const currentProtocol = window.location.protocol;
   
   if (isDevelopment) {
     if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
@@ -15,7 +16,8 @@ const getApiBaseUrl = () => {
     }
   }
   
-  return 'https://api.ecopaw.com'; // 生产环境
+  // 生产环境尝试使用同源API
+  return `${currentProtocol}//${currentHost}:5000/api`;
 };
 
 // 设置基础URL

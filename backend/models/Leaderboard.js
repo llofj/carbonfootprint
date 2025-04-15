@@ -6,15 +6,28 @@ const Leaderboard = {
   // 获取排行榜数据
   async getLeaderboard(limit = 10) {
     try {
+      // 限制最大值为200
+      const safeLimit = Math.min(limit, 200);
+      console.log(`获取排行榜数据，限制: ${safeLimit}条`);
+      
       const result = await pool.query(
-        `SELECT l.rank, l.carbon_reduction, u.username 
+        `SELECT l.user_id, l.rank, l.carbon_reduction, u.username 
          FROM leaderboard l
          JOIN users u ON l.user_id = u.id
-         ORDER BY l.carbon_reduction DESC, u.username
+         ORDER BY l.rank ASC
          LIMIT $1`,
-        [limit]
+        [safeLimit]
       );
-      return result.rows;
+      
+      // 确保数据格式正确
+      const formattedData = result.rows.map(row => ({
+        user_id: row.user_id,
+        rank: parseInt(row.rank, 10) || 0,
+        carbon_reduction: parseFloat(row.carbon_reduction) || 0,
+        username: row.username
+      }));
+      
+      return formattedData;
     } catch (error) {
       console.error('Error getting leaderboard:', error);
       return [];
@@ -39,7 +52,7 @@ const Leaderboard = {
 
       // 获取用户排名
       const result = await pool.query(
-        `SELECT l.rank, l.carbon_reduction, u.username 
+        `SELECT l.user_id, l.rank, l.carbon_reduction, u.username 
          FROM leaderboard l
          JOIN users u ON l.user_id = u.id
          WHERE l.user_id = $1`,
@@ -50,7 +63,14 @@ const Leaderboard = {
         return null;
       }
 
-      return result.rows[0];
+      // 格式化数据
+      const userData = result.rows[0];
+      return {
+        user_id: userData.user_id,
+        rank: parseInt(userData.rank, 10) || 0,
+        carbon_reduction: parseFloat(userData.carbon_reduction) || 0,
+        username: userData.username
+      };
     } catch (error) {
       console.error('Error getting user rank:', error);
       return null;

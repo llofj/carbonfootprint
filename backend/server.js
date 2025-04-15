@@ -20,12 +20,40 @@ const pool = new Pool({
 
 const app = express();
 
-// CORS配置 - 允许更多的源访问
+// 确定环境
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+// CORS配置 - 更灵活地处理跨域请求
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://127.0.0.1:8080', 'http://10.131.222.40:8080'],
-  credentials: true
+  origin: function(origin, callback) {
+    // 开发环境允许所有源访问
+    if (isDevelopment) {
+      callback(null, true);
+      return;
+    }
+    
+    // 生产环境下的允许域名列表
+    const allowedOrigins = [
+      'https://ecopaw.com', 
+      'https://www.ecopaw.com'
+    ];
+    
+    // 如果请求没有Origin头（如本地请求）或在允许列表中则允许
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log(`CORS拒绝来自${origin}的请求`);
+      callback(new Error('CORS策略不允许此源访问'), false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
 }));
 app.use(express.json());
+
+// 添加预检请求处理
+app.options('*', cors());
 
 // 简化的请求日志中间件
 app.use((req, res, next) => {

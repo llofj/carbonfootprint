@@ -80,8 +80,13 @@ const User = {
   },
   
   async validatePassword(inputPassword, storedPassword) {
-    // 确保在比较前对密码进行trim
-    return inputPassword.trim() === storedPassword.trim();
+    // 首先尝试使用bcrypt进行比较（处理已加密的密码）
+    try {
+      return await bcrypt.compare(inputPassword, storedPassword);
+    } catch (error) {
+      // 如果bcrypt比较失败（可能密码没有被加密），尝试直接比较
+      return inputPassword.trim() === storedPassword.trim();
+    }
   },
   
   // 用于测试的辅助方法
@@ -98,6 +103,7 @@ const User = {
   // 在需要时创建测试用户
   async createTestUserIfNotExists() {
     try {
+      console.log('检查测试用户是否存在...');
       // 检查测试用户是否存在
       const userCheck = await this.findByUsername('test');
       
@@ -107,9 +113,32 @@ const User = {
         // 对测试用户密码进行加密
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash('123456', salt);
+        console.log('加密密码生成:', hashedPassword.substring(0, 10) + '...');
         const testUser = await this.create('test', hashedPassword, 'test@example.com');
         console.log('测试用户创建成功:', testUser);
         return testUser;
+      } else {
+        console.log('测试用户已存在，检查密码格式...');
+        // 检查现有测试用户的密码是否已加密
+        try {
+          // 尝试解密密码，如果成功，说明是bcrypt格式
+          const isValidBcrypt = userCheck.password.startsWith('$2');
+          if (!isValidBcrypt) {
+            console.log('更新测试用户密码为加密格式...');
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash('123456', salt);
+            await pool.query(
+              'UPDATE users SET password = $1 WHERE id = $2',
+              [hashedPassword, userCheck.id]
+            );
+            console.log('测试用户密码已更新为加密格式');
+            // 重新获取更新后的用户
+            const updatedUser = await this.findById(userCheck.id);
+            return updatedUser;
+          }
+        } catch (error) {
+          console.error('检查密码格式失败:', error);
+        }
       }
       
       return userCheck;
