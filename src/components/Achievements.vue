@@ -331,7 +331,11 @@ export default {
         'pet_lover': '升级您的虚拟宠物至5级',
         'eco_warrior': '累计碳减排量达到50kg CO₂',
         'stepping_master': '单日行走步数超过20000步',
-        'diet_hero': '减少肉类消费减排量达到10kg CO₂'
+        'diet_hero': '减少肉类消费减排量达到10kg CO₂',
+        'pet_trainer': '通过训练获得1000经验值',
+        'pet_expert': '宠物等级达到10级',
+        'pet_master': '宠物等级达到20级',
+        'experience_collector': '累计获得5000经验值'
       };
       
       return hints[achievement.id] || '继续减碳行动解锁此成就';

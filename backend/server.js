@@ -8,14 +8,15 @@ const carbonRoutes = require('./routes/carbonRoutes');
 const petRoutes = require('./routes/petRoutes');
 const achievementRoutes = require('./routes/achievementRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
+const petController = require('./controllers/petController');
 
 // 创建数据库连接池
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'carbon_footprint',
-  password: '041905',
-  port: 3306,  // 使用3306端口
+  password: 'CC123',
+  port: 5432,  // 使用3306端口
 });
 
 const app = express();
@@ -110,6 +111,10 @@ app.listen(5000, '0.0.0.0', async () => {
   try {
     await initDatabase();
     console.log('数据库初始化完成');
+    
+    // 启动健康状态检查
+    petController.startHealthCheck();
+    console.log('健康状态检查已启动');
   } catch (error) {
     console.error('启动过程中出错:', error);
   }

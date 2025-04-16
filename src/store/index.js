@@ -1,6 +1,7 @@
 // src/store/index.js
 import { createStore } from 'vuex';
 import { getAPI } from '@/config/api';
+import message from './modules/message';
 
 export default createStore({
   state: {
@@ -67,5 +68,8 @@ export default createStore({
     currentUserCarbonReduction(state) {
       return state.userCarbonReduction;
     }
+  },
+  modules: {
+    message
   }
 });
