@@ -355,10 +355,12 @@ export default {
           return;
         }
         
-        console.log('正在加载排行榜数据，限制:', this.limit);
+        // 添加时间戳防止缓存
+        const timestamp = new Date().getTime();
+        console.log('正在加载排行榜数据，限制:', this.limit, '时间戳:', timestamp);
         
         // 直接使用axios
-        const response = await axios.get(`${this.apiBaseUrl}/leaderboard?limit=${this.limit}`, {
+        const response = await axios.get(`${this.apiBaseUrl}/leaderboard?limit=${this.limit}&_t=${timestamp}`, {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -371,10 +373,10 @@ export default {
           this.leaderboard = response.data.leaderboard;
           this.userRank = response.data.userRank;
           
-          // 如果用户排名信息为null或carbon_reduction为0，尝试强制更新
+          // 如果用户排名信息为null或carbon_reduction为0，尝试强制更新，但不修改原始值
           if (!this.userRank || this.userRank.carbon_reduction === 0) {
-            console.log('用户排名数据为空或减排量为0，尝试更新...');
-            await this.forceUpdateUserRank();
+            console.log('用户排名数据为空或减排量为0，尝试获取最新排名...');
+            await this.getUserRankOnly();
           }
           
           // 确保数据排序正确
@@ -401,23 +403,13 @@ export default {
       }
     },
     
-    // 强制更新当前用户排名
-    async forceUpdateUserRank() {
+    // 仅获取用户排名，不修改减碳总量
+    async getUserRankOnly() {
       try {
         const token = localStorage.getItem('token');
         if (!token) return;
         
-        console.log('强制更新当前用户排名...');
-        
-        // 调用更新接口
-        const response = await axios.post(`${this.apiBaseUrl}/leaderboard/update`, {}, {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json' 
-          }
-        });
-        
-        console.log('排名更新响应:', response.data);
+        console.log('仅获取用户排名数据...');
         
         // 获取最新的用户排名
         const userRankResponse = await axios.get(`${this.apiBaseUrl}/leaderboard/user`, {
@@ -428,11 +420,11 @@ export default {
         });
         
         if (userRankResponse.data) {
-          console.log('更新后的用户排名:', userRankResponse.data);
+          console.log('获取到的用户排名:', userRankResponse.data);
           this.userRank = userRankResponse.data;
         }
       } catch (error) {
-        console.error('强制更新用户排名失败:', error);
+        console.error('获取用户排名失败:', error);
       }
     },
     
@@ -453,21 +445,46 @@ export default {
           return;
         }
         
-        // 直接使用axios
-        await axios.post(`${this.apiBaseUrl}/leaderboard/update`, {}, {
+        console.log('开始更新排行榜，将刷新用户排名信息...');
+        
+        // 直接使用axios更新排名（不会修改减碳总量）
+        const updateResponse = await axios.post(`${this.apiBaseUrl}/leaderboard/update`, {}, {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json' 
           }
         });
         
-        await this.loadLeaderboard();
+        console.log('排名更新响应:', updateResponse.data);
+        
+        if (updateResponse.data && updateResponse.data.rank) {
+          console.log(`用户排名已更新为第 ${updateResponse.data.rank} 名`);
+          
+          if (this.userRank) {
+            // 只更新排名，保持减碳量不变
+            this.userRank.rank = updateResponse.data.rank;
+          }
+          
+          // 重新加载排行榜数据
+          await this.loadLeaderboard();
+        } else {
+          // 如果更新失败，也重新加载最新数据
+          await this.loadLeaderboard();
+        }
+        
         this.errorMessage = '';
+        this.showSuccessNotification('排行榜更新成功');
       } catch (error) {
         this.handleError(error, '更新排行榜失败');
       } finally {
         this.loading = false;
       }
+    },
+    
+    // 显示成功通知
+    showSuccessNotification(message) {
+      // 如果组件有相关的通知系统，可以在这里实现
+      console.log('成功:', message);
     },
     
     isCurrentUser(userId) {

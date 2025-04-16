@@ -1,3 +1,6 @@
+// src/config/api.js
+import axios from 'axios';
+
 // API 基础配置
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -120,4 +123,23 @@ export const responseInterceptor = {
     
     return Promise.reject(error);
   }
+}; 
+
+// 创建并配置axios实例的函数
+export const getAPI = () => {
+  const instance = axios.create(axiosConfig);
+  
+  // 添加请求拦截器
+  instance.interceptors.request.use(
+    requestInterceptor,
+    error => Promise.reject(error)
+  );
+  
+  // 添加响应拦截器
+  instance.interceptors.response.use(
+    responseInterceptor.success,
+    responseInterceptor.error
+  );
+  
+  return instance;
 }; 

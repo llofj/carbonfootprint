@@ -6,8 +6,8 @@ const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'carbon_footprint',
-  password: 'CC123',
-  port: 5432,  // 保持端口为3306，不进行修改
+  password: '041905',
+  port: 3306,  // 保持端口为3306，不进行修改
   max: 20,     // 连接池最大连接数
   idleTimeoutMillis: 30000, // 连接最大空闲时间
   connectionTimeoutMillis: 5000 // 增加连接超时时间

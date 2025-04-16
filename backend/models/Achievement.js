@@ -84,22 +84,26 @@ const Achievement = {
 
   // 获取用户的碳减排总量
   async getUserCarbonReduction(userId) {
-    // 从步行记录中获取减排量
-    const stepResult = await pool.query(
-      'SELECT COALESCE(SUM(carbon_reduction), 0) AS total FROM step_records WHERE user_id = $1',
-      [userId]
-    );
-    
-    // 从碳排放记录中获取负值(减排)
-    const emissionResult = await pool.query(
-      'SELECT COALESCE(SUM(amount), 0) AS total FROM carbon_emissions WHERE user_id = $1 AND amount < 0',
-      [userId]
-    );
-    
-    const stepReduction = parseFloat(stepResult.rows[0].total) || 0;
-    const emissionReduction = Math.abs(parseFloat(emissionResult.rows[0].total) || 0);
-    
-    return stepReduction + emissionReduction;
+    try {
+      // 直接从leaderboard表获取carbon_reduction字段
+      const result = await pool.query(
+        'SELECT carbon_reduction FROM leaderboard WHERE user_id = $1',
+        [userId]
+      );
+      
+      // 如果在leaderboard表中找到了用户记录
+      if (result.rows.length > 0) {
+        return parseFloat(result.rows[0].carbon_reduction) || 0;
+      }
+      
+      // 如果用户在leaderboard表中没有记录，则返回0
+      // 下次保存减碳记录时会自动创建leaderboard记录
+      console.log(`用户${userId}在leaderboard表中没有记录，返回0`);
+      return 0;
+    } catch (error) {
+      console.error('获取用户减碳总量失败:', error);
+      return 0; // 发生错误时返回0
+    }
   },
 
   // 检查用户是否达成了特定成就的条件
@@ -108,20 +112,20 @@ const Achievement = {
     
     switch (achievementType.id) {
       case 'green_commuter':
-        // 检查累计步行减排
+        // 检查总减碳量是否达到5kg（从leaderboard表获取）
         result = await pool.query(
-          'SELECT SUM(carbon_reduction) AS total FROM step_records WHERE user_id = $1',
+          'SELECT carbon_reduction FROM leaderboard WHERE user_id = $1',
           [userId]
         );
-        return (result.rows[0].total || 0) >= 5;
+        return result.rows.length > 0 && (parseFloat(result.rows[0].carbon_reduction) || 0) >= 5;
 
       case 'carbon_saver':
-        // 检查单日减排
+        // 检查总减碳量是否达到10kg
         result = await pool.query(
-          'SELECT MAX(total_reduction) AS max_reduction FROM (SELECT date, SUM(carbon_reduction) AS total_reduction FROM step_records WHERE user_id = $1 GROUP BY date) AS daily_reductions',
+          'SELECT carbon_reduction FROM leaderboard WHERE user_id = $1',
           [userId]
         );
-        return (result.rows[0].max_reduction || 0) >= 10;
+        return result.rows.length > 0 && (parseFloat(result.rows[0].carbon_reduction) || 0) >= 10;
 
       case 'pet_lover':
         // 检查宠物等级
@@ -132,12 +136,12 @@ const Achievement = {
         return result.rows.length > 0 && result.rows[0].level >= 5;
 
       case 'eco_warrior':
-        // 检查累计总减排
+        // 检查总减碳量是否达到50kg（从leaderboard表获取）
         result = await pool.query(
-          'SELECT SUM(carbon_reduction) AS total FROM step_records WHERE user_id = $1',
+          'SELECT carbon_reduction FROM leaderboard WHERE user_id = $1',
           [userId]
         );
-        return (result.rows[0].total || 0) >= 50;
+        return result.rows.length > 0 && (parseFloat(result.rows[0].carbon_reduction) || 0) >= 50;
 
       case 'stepping_master':
         // 检查单日最高步数
@@ -145,15 +149,15 @@ const Achievement = {
           'SELECT MAX(steps) AS max_steps FROM step_records WHERE user_id = $1',
           [userId]
         );
-        return (result.rows[0].max_steps || 0) >= 20000;
+        return (result.rows[0]?.max_steps || 0) >= 20000;
 
       case 'diet_hero':
-        // 检查食物减排
+        // 检查总减碳量是否达到15kg
         result = await pool.query(
-          'SELECT SUM(amount) AS total_reduction FROM carbon_emissions WHERE user_id = $1 AND category = \'食\' AND amount < 0',
+          'SELECT carbon_reduction FROM leaderboard WHERE user_id = $1',
           [userId]
         );
-        return Math.abs(result.rows[0].total_reduction || 0) >= 10;
+        return result.rows.length > 0 && (parseFloat(result.rows[0].carbon_reduction) || 0) >= 15;
 
       default:
         return false;

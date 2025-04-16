@@ -1,5 +1,7 @@
 // backend/controllers/achievementController.js
 const Achievement = require('../models/Achievement');
+// 引入数据库连接池用于直接查询leaderboard表
+const pool = require('../config/db');
 
 // 获取所有成就类型
 exports.getAllAchievementTypes = async (req, res) => {
@@ -69,7 +71,19 @@ exports.checkNewAchievements = async (req, res) => {
 exports.getUserCarbonReduction = async (req, res) => {
   try {
     const userId = req.user.id;
-    const reduction = await Achievement.getUserCarbonReduction(userId);
+    
+    // 直接从leaderboard表获取carbon_reduction值
+    const result = await pool.query(
+      'SELECT carbon_reduction FROM leaderboard WHERE user_id = $1',
+      [userId]
+    );
+    
+    // 如果在leaderboard表中找到了用户的记录，返回减碳量
+    // 否则返回0（后续保存减碳记录时会创建记录）
+    const reduction = result.rows.length > 0 
+      ? parseFloat(result.rows[0].carbon_reduction) || 0
+      : 0;
+    
     res.json({ carbon_reduction: reduction });
   } catch (error) {
     console.error('Error getting user carbon reduction:', error);

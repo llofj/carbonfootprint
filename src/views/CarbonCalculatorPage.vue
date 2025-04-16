@@ -10,6 +10,7 @@
       <div class="page-content">
         <h1 class="page-title">碳排放计算器</h1>
         <p class="description">通过记录日常活动，了解您的碳排放量</p>
+        
         <div class="switch-calculator">
           <button class="switch-btn" @click="switchToReductionCalculator">
             <i class="fas fa-exchange-alt"></i>
@@ -258,6 +259,9 @@ export default {
       offsetTrees: 0.3
     };
   },
+  created() {
+    // 不需要检查用户登录和加载减碳数据
+  },
   methods: {
     setActiveCategory(category) {
       this.activeCategory = category;
@@ -368,7 +372,7 @@ export default {
 }
 
 .switch-calculator {
-  margin: 0 0 1.5rem 0;
+  margin: 20px 0;
 }
 
 .switch-btn {

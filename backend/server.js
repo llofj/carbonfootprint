@@ -1,7 +1,6 @@
 // backend/server.js
 const express = require('express');
 const cors = require('cors');
-const { Pool } = require('pg');
 const User = require('./models/User');
 const authRoutes = require('./routes/authRoutes');
 const carbonRoutes = require('./routes/carbonRoutes');
@@ -10,14 +9,8 @@ const achievementRoutes = require('./routes/achievementRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
 const petController = require('./controllers/petController');
 
-// 创建数据库连接池
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'carbon_footprint',
-  password: 'CC123',
-  port: 5432,  // 使用3306端口
-});
+// 引入数据库连接配置
+const pool = require('./config/db');
 
 const app = express();
 

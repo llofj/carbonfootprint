@@ -3,6 +3,7 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
+const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/auth');
 
 // Helper function to validate input
 const validateLoginInput = (username, password, captcha) => {
@@ -146,8 +147,8 @@ exports.login = async (req, res) => {
             id: testUser.id,
             username: testUser.username
           }, 
-          process.env.JWT_SECRET || 'your-secret-key',
-          { expiresIn: '24h' }
+          JWT_SECRET,
+          { expiresIn: JWT_EXPIRES_IN }
         );
         
         return res.json({ 
@@ -238,8 +239,8 @@ exports.login = async (req, res) => {
         id: user.id,
         username: user.username
       }, 
-      process.env.JWT_SECRET || 'your-secret-key',
-      { expiresIn: '24h' }
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
     );
     
     // 8. 返回成功响应

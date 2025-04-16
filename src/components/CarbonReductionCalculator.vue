@@ -122,7 +122,8 @@ import { getAPI } from '@/config/api'
 
 export default {
   name: 'CarbonReductionCalculator',
-  setup() {
+  emits: ['reductionSaved'],
+  setup(props, { emit }) {
     const store = useStore()
     const router = useRouter()
     const showSuccess = ref(false)
@@ -303,32 +304,117 @@ export default {
       isSaving.value = true
       showSuccess.value = false
       showError.value = false
+      
+      // 检查输入值的有效性
+      const invalidActivity = selectedActivities.value.find(activity => 
+        !activity.amount || isNaN(activity.amount) || activity.amount <= 0
+      )
+      
+      if (invalidActivity) {
+        showError.value = true
+        errorMessage.value = `请为「${invalidActivity.name}」输入有效的数量`
+        isSaving.value = false
+        return
+      }
 
       try {
-        const response = await getAPI().post('/carbon/reduction', {
-          activities: selectedActivities.value.map(activity => ({
-            id: activity.id,
-            name: activity.name,
-            amount: activity.amount,
-            reduction: activity.amount * activity.factor
-          }))
-        })
-
-        if (response.data.success) {
-          showSuccess.value = true
-          // 清空已选活动
-          selectedActivities.value = []
-          totalReduction.value = 0
-          // 更新用户减碳总量
-          store.dispatch('fetchUserCarbonReduction')
-        } else {
+        // 准备提交的数据，确保reduction是数字类型
+        const activitiesData = selectedActivities.value.map(activity => ({
+          id: activity.id,
+          name: activity.name,
+          amount: parseFloat(activity.amount),
+          reduction: parseFloat((activity.amount * activity.factor).toFixed(2))
+        }))
+        
+        console.log('发送减碳数据:', activitiesData)
+        
+        // 检查用户token是否存在
+        const token = localStorage.getItem('token')
+        if (!token) {
           showError.value = true
-          errorMessage.value = response.data.error || '保存失败'
+          errorMessage.value = '未登录或会话已过期，请重新登录'
+          isSaving.value = false
+          return
+        }
+        
+        console.log('请求开始，准备发送POST请求到:', '/carbon/reduction')
+        
+        try {
+          // 获取配置好的axios实例
+          const api = getAPI()
+          
+          // 打印请求配置
+          console.log('API配置:', {
+            baseURL: api.defaults.baseURL,
+            timeout: api.defaults.timeout,
+            headers: api.defaults.headers
+          })
+          
+          // 发送请求
+          const response = await api.post('/carbon/reduction', {
+            activities: activitiesData
+          })
+          
+          console.log('请求成功，服务器响应:', response.data)
+          
+          if (response.data && response.data.success) {
+            // 清空已选活动
+            selectedActivities.value = []
+            // 重置总减碳量
+            totalReduction.value = 0
+            
+            // 显示成功消息
+            showSuccess.value = true
+            
+            // 通知父组件更新用户减碳总量
+            const newTotal = response.data.data.newTotalReduction || 0
+            console.log('新的减碳总量:', newTotal)
+            emit('reductionSaved', newTotal)
+            
+            // 延迟刷新
+            setTimeout(async () => {
+              try {
+                // 直接刷新当前页面的数据
+                await store.dispatch('updateUserCarbonReduction')
+                
+                // 同步更新排名系统
+                await store.dispatch('syncLeaderboardWithCarbonReduction')
+                console.log('已同步排名系统数据')
+              } catch (refreshError) {
+                console.error('刷新数据失败:', refreshError)
+              }
+            }, 1500)
+          } else {
+            showError.value = true
+            errorMessage.value = response.data?.error || '保存失败，请重试'
+            console.error('保存失败，响应中没有success标志:', response.data)
+          }
+        } catch (apiError) {
+          console.error('API调用失败:', apiError)
+          throw apiError
         }
       } catch (error) {
         console.error('保存减碳记录失败:', error)
         showError.value = true
-        errorMessage.value = error.response?.data?.error || '保存失败，请稍后重试'
+        
+        // 提取详细的错误信息
+        const serverError = error.response?.data?.error || error.response?.data?.message
+        const serverDetails = error.response?.data?.details
+        
+        if (serverError) {
+          errorMessage.value = serverDetails 
+            ? `${serverError}: ${serverDetails}`
+            : serverError
+          console.error('服务器返回错误:', serverError, serverDetails)
+        } else if (error.request) {
+          // 请求发出但没有收到响应
+          errorMessage.value = '服务器无响应，请检查网络连接'
+          console.error('请求无响应:', error.request)
+        } else {
+          // 请求设置或发送前出错
+          errorMessage.value = '请求发送失败，请稍后重试'
+          console.error('请求发送错误:', error.message)
+        }
       } finally {
         isSaving.value = false
       }

@@ -90,21 +90,37 @@ exports.updateLeaderboard = async (req, res) => {
     
     let totalReduction = 0;
     
-    // 特定用户处理
-    if (userId === 1) { // llofj用户
+    // 获取用户在leaderboard表中的当前减碳总量
+    const pool = require('../config/db');
+    const leaderboardResult = await pool.query(
+      'SELECT carbon_reduction FROM leaderboard WHERE user_id = $1',
+      [userId]
+    );
+    
+    // 如果用户在leaderboard表中有记录，直接使用其中的值
+    if (leaderboardResult.rows.length > 0 && parseFloat(leaderboardResult.rows[0].carbon_reduction) > 0) {
+      totalReduction = parseFloat(leaderboardResult.rows[0].carbon_reduction);
+      console.log(`使用leaderboard表中记录的减碳总量: ${totalReduction}`);
+    } 
+    // 特定用户处理仅在用户不存在记录时使用
+    else if (userId === 1) { // llofj用户
       totalReduction = 850.5;
+      console.log(`使用llofj用户的特定值: ${totalReduction}`);
     } else if (userId === 2) { // test用户
       totalReduction = 920.8;
+      console.log(`使用test用户的特定值: ${totalReduction}`);
     } else {
       // 常规用户获取减排总量
       totalReduction = await Leaderboard.getUserTotalReduction(userId);
+      console.log(`从Achievement获取的减排总量: ${totalReduction}`);
     }
     
-    console.log(`用户ID ${userId} 的减排量: ${totalReduction}`);
+    console.log(`用户ID ${userId} 的最终减排量: ${totalReduction}`);
     const updatedRank = await Leaderboard.updateUserRank(userId, totalReduction);
     
     res.json({
       rank: updatedRank,
+      carbon_reduction: totalReduction,
       message: '排行榜数据已更新'
     });
   } catch (error) {
