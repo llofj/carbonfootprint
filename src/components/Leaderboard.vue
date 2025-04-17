@@ -1,6 +1,6 @@
 <template>
   <div class="leaderboard-page">
-    <h2 class="main-title">碳减排排行榜</h2>
+    <h2 class="page-title">碳减排排行榜</h2>
     
     <div v-if="errorMessage" class="error-message">
       <i class="fas fa-exclamation-circle"></i>
@@ -10,26 +10,28 @@
     <!-- 用户自己的排名信息卡片，更美观的展示 -->
     <div class="user-rank-card">
       <div class="user-rank-header">
-        <div class="user-avatar">
-          <span v-if="username">{{ getInitials(username) }}</span>
-          <span v-else><i class="fas fa-user"></i></span>
-        </div>
-        <div class="user-info">
-          <h3>{{ username || '未能获取用户名' }}</h3>
-          <div class="user-status">您当前的碳减排状态</div>
-          <div class="user-badges" v-if="userRank">
-            <span v-if="userRank.rank <= 3" class="badge top-badge" title="排名前三">
-              <i class="fas fa-crown"></i>
-            </span>
-            <span v-if="userRank.carbon_reduction >= 100" class="badge century-badge" title="减排量超过100kg">
-              <i class="fas fa-medal"></i>
-            </span>
-            <span v-if="userRank.carbon_reduction >= 50" class="badge progress-badge" title="减排量超过50kg">
-              <i class="fas fa-award"></i>
-            </span>
-            <span v-if="isNewUser" class="badge newcomer-badge" title="新用户">
-              <i class="fas fa-seedling"></i>
-            </span>
+        <div class="user-avatar-and-info">
+          <div class="user-avatar">
+            <span v-if="username">{{ getInitials(username) }}</span>
+            <span v-else><i class="fas fa-user"></i></span>
+          </div>
+          <div class="user-info">
+            <h3>{{ username || '未能获取用户名' }}</h3>
+            <div class="user-status">您当前的碳减排状态</div>
+            <div class="user-badges" v-if="userRank">
+              <span v-if="userRank.rank <= 3" class="badge top-badge" title="排名前三">
+                <i class="fas fa-crown"></i>
+              </span>
+              <span v-if="userRank.carbon_reduction >= 100" class="badge century-badge" title="减排量超过100kg">
+                <i class="fas fa-medal"></i>
+              </span>
+              <span v-if="userRank.carbon_reduction >= 50" class="badge progress-badge" title="减排量超过50kg">
+                <i class="fas fa-award"></i>
+              </span>
+              <span v-if="isNewUser" class="badge newcomer-badge" title="新用户">
+                <i class="fas fa-seedling"></i>
+              </span>
+            </div>
           </div>
         </div>
         <div v-if="userRank" class="rank-badge" :class="getRankColorClass(userRank.rank)">
@@ -466,7 +468,7 @@ export default {
           }
           
           // 重新加载排行榜数据
-          await this.loadLeaderboard();
+        await this.loadLeaderboard();
         } else {
           // 如果更新失败，也重新加载最新数据
           await this.loadLeaderboard();
@@ -507,25 +509,50 @@ export default {
   margin: 0 auto;
   padding: 20px;
   font-family: 'Arial', sans-serif;
+  position: relative;
+}
+
+/* 添加新的背景样式 */
+.leaderboard-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../assets/carbon_7.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  filter: brightness(0.9) saturate(1.1);
+  z-index: -1;
+  opacity: 0.9;
+}
+
+.page-title {
+  color: #1e3d59;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-size: 32px;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .main-title {
-  text-align: center;
-  color: #2196F3;
-  margin-bottom: 20px;
-  font-size: 1.8rem;
+  display: none;
 }
 
 .user-rank-card {
-  background: linear-gradient(135deg, #bbdefb 0%, #e3f2fd 100%);
-  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(187, 222, 251, 0.85) 0%, rgba(227, 242, 253, 0.85) 100%);
+  border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 25px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  border: 1px solid rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   animation: slideInFromTop 0.8s ease-out;
   width: 100%;
-  max-width: 800px;
+  margin: 0 auto 20px auto;
+  backdrop-filter: blur(5px);
 }
 
 @keyframes slideInFromTop {
@@ -540,26 +567,36 @@ export default {
 }
 
 .user-rank-header {
-  padding: 25px;
+  padding: 15px 20px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-  background-color: rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.2);
+  position: relative;
+  justify-content: space-between;
+}
+
+.user-avatar-and-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-info {
+  margin-left: 15px;
 }
 
 .user-avatar {
-  width: 80px;
-  height: 80px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: linear-gradient(135deg, #2196F3, #03A9F4);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.2rem;
+  font-size: 1.5rem;
   font-weight: bold;
-  margin-right: 20px;
-  box-shadow: 0 4px 10px rgba(33,150,243,0.4);
+  box-shadow: 0 3px 10px rgba(33, 150, 243, 0.5);
   text-transform: uppercase;
   position: relative;
   overflow: hidden;
@@ -569,112 +606,20 @@ export default {
 
 .user-avatar:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 15px rgba(33,150,243,0.6);
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 4px 10px rgba(33,150,243,0.4);
-  }
-  50% {
-    box-shadow: 0 4px 20px rgba(33,150,243,0.6);
-  }
-  100% {
-    box-shadow: 0 4px 10px rgba(33,150,243,0.4);
-  }
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  font-size: 0.8rem;
-  color: white;
-  cursor: help;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  animation: badgePop 0.5s ease-out;
-}
-
-.badge:hover {
-  transform: translateY(-2px) rotate(10deg);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-}
-
-@keyframes badgePop {
-  0% {
-    transform: scale(0);
-  }
-  70% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.rank-1, .rank-2, .rank-3 {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  animation: rankPulse 1.5s infinite alternate;
-}
-
-@keyframes rankPulse {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(1.1);
-  }
-}
-
-.tip-card {
-  display: flex;
-  background-color: #F6F8FA;
-  border-radius: 10px;
-  padding: 15px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  animation: cardAppear 0.5s ease-out;
-  animation-fill-mode: both;
-  animation-delay: calc(var(--index, 0) * 0.1s);
-}
-
-@keyframes cardAppear {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.user-info {
-  flex: 1;
+  box-shadow: 0 5px 15px rgba(33, 150, 243, 0.7);
 }
 
 .user-info h3 {
-  margin: 0 0 8px 0;
-  font-size: 1.5rem;
+  margin: 0 0 4px 0; /* 减小下边距 */
+  font-size: 1.2rem; /* 减小字体大小 */
   color: #333;
   font-weight: 600;
 }
 
 .user-status {
   color: #555;
-  font-size: 0.95rem;
-  margin-bottom: 6px;
+  font-size: 0.8rem; /* 减小字体大小 */
+  margin-bottom: 3px; /* 减小下边距 */
 }
 
 .user-badges {
@@ -682,34 +627,119 @@ export default {
   gap: 5px;
 }
 
-.rank-badge {
-  font-size: 1.8rem;
-  font-weight: bold;
-  padding: 12px 20px;
-  border-radius: 10px;
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+  margin-right: 4px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.badge:hover {
+  transform: scale(1.2);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.top-badge {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
   color: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.century-badge {
+  background: linear-gradient(135deg, #2196F3, #03A9F4);
+  color: white;
+}
+
+.progress-badge {
+  background: linear-gradient(135deg, #4CAF50, #8BC34A);
+  color: white;
+}
+
+.newcomer-badge {
+  background: linear-gradient(135deg, #9C27B0, #E040FB);
+  color: white;
+}
+
+/* 增加排名徽章的动画效果 */
+.rank-badge {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rank-badge:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.loading-rank {
+  background: linear-gradient(135deg, #9E9E9E, #757575);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(33, 150, 243, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(33, 150, 243, 0);
+  }
+}
+
+.rank-badge {
+  font-size: 1.8rem; /* 增大字体大小 */
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: white;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  margin-left: auto; /* 推向右侧 */
+  background: linear-gradient(135deg, #1976D2, #2196F3); /* 调整颜色使其更突出 */
+  position: relative;
+  overflow: hidden;
+}
+
+.rank-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0));
+  opacity: 0.6;
 }
 
 .rank-top {
-  background-color: #F57C00;
+  background: linear-gradient(135deg, #F57C00, #FF9800);
+  box-shadow: 0 3px 10px rgba(255, 152, 0, 0.5);
 }
 
 .rank-excellent {
-  background-color: #4CAF50;
+  background: linear-gradient(135deg, #1976D2, #2196F3);
+  box-shadow: 0 3px 10px rgba(33, 150, 243, 0.5);
 }
 
 .rank-good {
-  background-color: #2196F3;
+  background: linear-gradient(135deg, #388E3C, #4CAF50);
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.5);
 }
 
 .rank-normal {
-  background-color: #9E9E9E;
+  background: linear-gradient(135deg, #5E35B1, #7E57C2);
+  box-shadow: 0 3px 10px rgba(126, 87, 194, 0.5);
 }
 
 .user-stats {
   display: flex;
-  padding: 20px;
+  padding: 10px 12px; /* 减小内边距 */
   background-color: rgba(255,255,255,0.7);
   justify-content: space-around;
 }
@@ -717,18 +747,18 @@ export default {
 .stat-item {
   flex: 1;
   text-align: center;
-  padding: 15px;
+  padding: 10px 8px; /* 减小内边距 */
 }
 
 .stat-value {
-  font-size: 1.7rem;
+  font-size: 1.3rem; /* 减小字体大小 */
   font-weight: bold;
   color: #2196F3;
-  margin-bottom: 8px;
+  margin-bottom: 5px; /* 减小下边距 */
 }
 
 .carbon-value {
-  font-size: 2.2rem;
+  font-size: 1.6rem; /* 减小字体大小 */
   background: linear-gradient(135deg, #2196F3, #03A9F4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -737,7 +767,7 @@ export default {
 }
 
 .stat-label {
-  font-size: 0.9rem;
+  font-size: 0.75rem; /* 减小字体大小 */
   color: #555;
   font-weight: 500;
 }
@@ -745,7 +775,7 @@ export default {
 .stat-divider {
   width: 1px;
   background-color: rgba(0,0,0,0.1);
-  margin: 10px 5px;
+  margin: 8px 4px;
 }
 
 .text-gold {
@@ -764,11 +794,12 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
-  background-color: white;
-  padding: 15px 20px;
+  margin-bottom: 20px; /* 减小下边距 */
+  background-color: rgba(255, 255, 255, 0.85); /* 调整为半透明背景以配合新背景图片 */
+  padding: 12px 18px; /* 减小内边距 */
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  backdrop-filter: blur(5px);
 }
 
 .error-message {
@@ -827,7 +858,7 @@ export default {
 }
 
 .leaderboard-container {
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.85); /* 调整为半透明背景以配合新背景图片 */
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
@@ -835,6 +866,7 @@ export default {
   min-height: 300px;
   position: relative;
   width: 100%;
+  backdrop-filter: blur(5px);
 }
 
 .leaderboard-table {
@@ -858,7 +890,7 @@ export default {
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  background-color: #F6F8FA;
+  background-color: rgba(246, 248, 250, 0.85);
   border-bottom: 1px solid #E6EBF1;
 }
 
@@ -867,6 +899,7 @@ export default {
   border-bottom: 1px solid #E6EBF1;
   color: #24292F;
   font-size: 1rem;
+  background-color: rgba(255, 255, 255, 0.75);
 }
 
 .user-info-row {
@@ -915,11 +948,12 @@ export default {
 }
 
 .leaderboard-tips {
-  background-color: #f5f5f5;
+  background-color: rgba(245, 245, 245, 0.8);
   border-radius: 8px;
   padding: 20px;
   margin-top: 20px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  backdrop-filter: blur(5px);
 }
 
 .leaderboard-tips h3 {
@@ -959,7 +993,7 @@ export default {
 }
 
 .pagination-btn {
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.85);
   border: none;
   width: 40px;
   height: 40px;
@@ -972,6 +1006,7 @@ export default {
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   color: #2196F3;
   font-size: 1rem;
+  backdrop-filter: blur(3px);
 }
 
 .pagination-btn:hover:not(:disabled) {
@@ -981,19 +1016,25 @@ export default {
   box-shadow: 0 4px 10px rgba(33,150,243,0.3);
 }
 
-.page-info {
+.page-info, .total-entries {
   font-size: 0.9rem;
-  color: #666;
+  color: #444;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 5px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(2px);
 }
 
 .total-entries {
   text-align: center;
-  font-size: 0.9rem;
-  color: #666;
   margin-bottom: 20px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 28px;
+  }
   .leaderboard-controls {
     flex-direction: column;
     align-items: flex-start;
@@ -1001,46 +1042,55 @@ export default {
   }
   
   .user-rank-header {
-    flex-direction: column;
-    text-align: center;
+    padding: 12px 15px;
+    flex-direction: row; /* 在移动端保持水平布局 */
+    text-align: left;
+    align-items: center;
+    justify-content: space-between; /* 两端对齐 */
+  }
+  
+  .user-avatar-and-info {
+    flex-direction: column; /* 在移动端将头像和信息垂直排列 */
+    align-items: flex-start;
   }
   
   .user-avatar {
+    width: 45px; /* 在移动端进一步缩小 */
+    height: 45px;
+    font-size: 1.3rem;
     margin-right: 0;
     margin-bottom: 10px;
   }
   
   .rank-badge {
-    margin-top: 10px;
+    margin-top: 0; /* 移除顶部边距 */
+    padding: 5px 10px; /* 减小内边距 */
+    font-size: 1.5rem; /* 减小字体大小 */
+    align-self: flex-start; /* 靠上对齐 */
   }
   
   .user-stats {
     flex-direction: column;
+    padding: 0;
   }
   
   .stat-divider {
     height: 1px;
-    width: 100%;
-    margin: 5px 0;
+    width: 80%;
+    margin: 2px auto;
   }
   
-  .leaderboard-row {
-    padding: 10px;
+  .stat-item {
+    padding: 8px 5px;
   }
   
-  .rank-number {
-    width: 25px;
-    height: 25px;
-    font-size: 0.9rem;
+  .carbon-value {
+    font-size: 1.6rem;
   }
   
-  .user-column {
-    font-size: 0.9rem;
-  }
-  
-  .reduction-column {
-    width: 100px;
-    font-size: 0.9rem;
+  .stat-value {
+    font-size: 1.3rem;
+    margin-bottom: 3px;
   }
 }
 
@@ -1153,11 +1203,15 @@ export default {
 }
 
 .leaderboard-table tr.current-user {
-  background-color: rgba(33, 150, 243, 0.08);
+  background-color: rgba(33, 150, 243, 0.05) !important;
+  animation: highlightRow 2s infinite alternate;
+  position: relative;
+  z-index: 1;
 }
 
-.leaderboard-table tr.current-user:hover {
-  background-color: rgba(33, 150, 243, 0.12);
+@keyframes highlightRow {
+  from { background-color: rgba(33, 150, 243, 0.05); }
+  to { background-color: rgba(33, 150, 243, 0.15); }
 }
 
 .leaderboard-table tr:last-child td {

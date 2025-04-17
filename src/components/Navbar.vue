@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar">
+  <nav class="navbar" ref="navbar">
     <div class="navbar-brand">
       <router-link to="/" class="logo">EcoPaw</router-link>
     </div>
@@ -65,14 +65,27 @@ export default {
       if (event.key === 'token' || event.key === 'username') {
         this.checkLoginStatus();
       }
+    },
+    handleScroll() {
+      if (this.$refs.navbar) {
+        if (window.scrollY > 20) {
+          this.$refs.navbar.classList.add('scrolled');
+        } else {
+          this.$refs.navbar.classList.remove('scrolled');
+        }
+      }
     }
   },
   created() {
     this.checkLoginStatus();
     window.addEventListener('storage', this.handleStorageChange);
   },
+  mounted() {
+    window.addEventListener('scroll', this.handleScroll);
+  },
   beforeUnmount() {
     window.removeEventListener('storage', this.handleStorageChange);
+    window.removeEventListener('scroll', this.handleScroll);
   }
 };
 </script>

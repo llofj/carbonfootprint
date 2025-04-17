@@ -1,10 +1,11 @@
 <template>
   <div>
     <Navbar />
-    <div class="content">
+    <div class="content achievements-page">
       <div class="back-to-home">
         <button @click="goHome" class="back-btn">
-          <i class="fas fa-home"></i> 返回主页
+          <i class="fas fa-home"></i>
+          <span>返回主页</span>
         </button>
       </div>
       <Achievements />
@@ -15,6 +16,7 @@
 <script>
 import Navbar from '../components/Navbar.vue';
 import Achievements from '../components/Achievements.vue';
+import '../assets/css/homeButton.css';
 
 export default {
   components: {
@@ -31,8 +33,21 @@ export default {
 
 <style scoped>
 .content {
+  min-height: 100vh;
   padding-top: 70px;
   position: relative;
+}
+
+.content::before {
+  display: none;
+}
+
+.achievements-page {
+  z-index: 2;
+  position: relative;
+  padding-bottom: 60px;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 .back-to-home {
@@ -42,22 +57,14 @@ export default {
   z-index: 10;
 }
 
-.back-btn {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 8px 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  transition: background-color 0.3s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.back-btn:hover {
-  background-color: #388E3C;
+@media (max-width: 768px) {
+  .content {
+    padding-top: 90px;
+  }
+  
+  .back-to-home {
+    top: 70px;
+    left: 15px;
+  }
 }
 </style>

@@ -1,10 +1,19 @@
 <template>
   <div class="carbon-reduction-page">
     <div class="calculator-container">
+      <div class="nav-controls">
       <div class="back-to-home">
         <button @click="goHome" class="back-btn">
-          <i class="fas fa-home"></i> 返回主页
+            <i class="fas fa-home"></i>
+            <span>返回主页</span>
         </button>
+      </div>
+        <div class="switch-calculator">
+          <button class="switch-btn" @click="switchToEmissionCalculator">
+            <i class="fas fa-exchange-alt"></i>
+            切换到碳排放计算器
+          </button>
+        </div>
       </div>
       <div class="page-content">
         <h1 class="page-title">减碳计算器</h1>
@@ -48,12 +57,6 @@
           </div>
         </div>
         
-        <div class="switch-calculator">
-          <button class="switch-btn" @click="switchToEmissionCalculator">
-            <i class="fas fa-exchange-alt"></i>
-            切换到碳排放计算器
-          </button>
-        </div>
         <CarbonReductionCalculator @reduction-saved="onReductionSaved" />
       </div>
     </div>
@@ -230,8 +233,23 @@ export default {
 <style scoped>
 .carbon-reduction-page {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-image: url('../assets/carbon_4.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   padding-top: 20px;
+  position: relative;
+}
+
+.carbon-reduction-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.75);
+  z-index: 1;
 }
 
 .calculator-container {
@@ -239,6 +257,7 @@ export default {
   margin: 0 auto;
   padding: 1rem;
   position: relative;
+  z-index: 2;
 }
 
 .page-content {
@@ -252,13 +271,17 @@ export default {
   color: #1e3d59;
   text-align: center;
   margin-bottom: 0.5rem;
-  font-size: 28px;
+  font-size: 32px;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .description {
   text-align: center;
-  color: #666;
-  margin-bottom: 1rem;
+  color: #444;
+  margin-bottom: 1.5rem;
+  font-size: 16px;
+  max-width: 600px;
 }
 
 /* 用户信息横向长条卡片 */
@@ -266,14 +289,20 @@ export default {
   width: 95%;
   max-width: 800px;
   height: 100px;
-  border-radius: 12px;
+  border-radius: 16px;
   margin: 20px 0;
   position: relative;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   background: linear-gradient(120deg, #111822, #253746);
   overflow: hidden;
   display: flex;
   align-items: center;
+  transition: all 0.3s ease;
+}
+
+.user-info-banner:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 
 .banner-glow {
@@ -446,10 +475,20 @@ export default {
   100% { transform: scale(1); }
 }
 
+.nav-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
 .back-to-home {
-  position: absolute;
-  top: 20px;
-  left: 20px;
+  position: static;
+}
+
+.switch-calculator {
+  margin: 0;
 }
 
 .back-btn {
@@ -471,28 +510,24 @@ export default {
   background-color: #388E3C;
 }
 
-.switch-calculator {
-  margin: 0 0 1.5rem 0;
-}
-
 .switch-btn {
   display: flex;
   align-items: center;
   padding: 10px 20px;
-  background: linear-gradient(135deg, #3498db, #1abc9c);
+  background: linear-gradient(135deg, #1e3d59, #4CAF50);
   border: none;
   border-radius: 25px;
   color: white;
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 3px 8px rgba(26, 188, 156, 0.3);
+  box-shadow: 0 3px 8px rgba(30, 61, 89, 0.3);
 }
 
 .switch-btn:hover {
-  background: linear-gradient(135deg, #2980b9, #16a085);
+  background: linear-gradient(135deg, #19324a, #3d9140);
   transform: translateY(-2px);
-  box-shadow: 0 5px 12px rgba(26, 188, 156, 0.4);
+  box-shadow: 0 5px 12px rgba(30, 61, 89, 0.4);
 }
 
 .switch-btn i {
@@ -553,9 +588,9 @@ export default {
 
 /* 数据更新时的高亮效果 */
 @keyframes highlight-pulse {
-  0% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
-  50% { box-shadow: 0 8px 30px rgba(66, 153, 225, 0.5); }
-  100% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); }
+  0% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); }
+  50% { box-shadow: 0 8px 30px rgba(66, 153, 225, 0.6); background: linear-gradient(120deg, #1a2936, #304b60); }
+  100% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); }
 }
 
 .highlight-update {

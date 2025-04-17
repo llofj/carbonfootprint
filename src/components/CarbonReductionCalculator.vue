@@ -99,8 +99,10 @@
       <i class="fas fa-check-circle"></i>
       <div class="message-content">
         <div class="message-title">减碳记录保存成功！</div>
-        <div class="message-detail">已将{{ totalReduction.toFixed(2) }}kgCO₂e加入您的减碳总量</div>
       </div>
+      <button class="close-message-btn" @click="showSuccess = false">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
     
     <!-- 保存失败提示 -->
@@ -110,6 +112,9 @@
         <div class="message-title">保存失败</div>
         <div class="message-detail">{{ errorMessage }}</div>
       </div>
+      <button class="close-message-btn" @click="showError = false">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
   </div>
 </template>
@@ -739,6 +744,27 @@ export default {
 .message-detail {
   font-size: 14px;
   opacity: 0.9;
+}
+
+.close-message-btn {
+  background: none;
+  border: none;
+  color: white;
+  opacity: 0.7;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  margin-left: 10px;
+  transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.close-message-btn:hover {
+  opacity: 1;
 }
 
 @keyframes slideIn {

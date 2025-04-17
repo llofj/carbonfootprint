@@ -63,7 +63,7 @@ const authMiddleware = (req, res, next) => {
         error: '认证失败', 
         details: error.message
       });
-    }
+  }
   }
 };
 

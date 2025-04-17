@@ -1,6 +1,6 @@
 <template>
   <div class="virtual-pet-page">
-    <h2>我的虚拟宠物</h2>
+    <h2 class="page-title">我的虚拟宠物</h2>
     
     <div class="pet-container">
       <div class="pet-info-card">
@@ -177,7 +177,11 @@ export default {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      this.pet = response.data;
+      // 保存后端数据但确保宠物名称为"奶龙"
+      this.pet = {
+        ...response.data,
+        name: '奶龙'
+      };
       this.lastHealth = this.pet.health;
       this.experienceToNextLevel = response.data.experienceToNextLevel;
       
@@ -219,7 +223,11 @@ export default {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        this.pet = response.data.pet;
+        // 确保宠物名称保持为"奶龙"
+        this.pet = {
+          ...response.data.pet,
+          name: '奶龙'
+        };
         this.steps = response.data.stepsProcessed;
         this.carbonReduction = response.data.carbonReduction;
         this.coinsEarned = response.data.coinsEarned;
@@ -257,8 +265,11 @@ export default {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        // 更新宠物数据和健康状态
-        this.pet = response.data.pet;
+        // 更新宠物数据和健康状态，确保名称保持为"奶龙"
+        this.pet = {
+          ...response.data.pet,
+          name: '奶龙'
+        };
         this.lastHealth = this.pet.health;
         
         // 触发喂食动画
@@ -293,7 +304,11 @@ export default {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        this.pet = response.data.pet;
+        // 更新宠物数据，确保名称保持为"奶龙"
+        this.pet = {
+          ...response.data.pet,
+          name: '奶龙'
+        };
         this.experienceToNextLevel = response.data.experienceToNextLevel;
         
         this.playAnimation('shake');
@@ -341,8 +356,11 @@ export default {
         this.tempExperiencePercentage = 0;
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        // 更新宠物数据
-        this.pet = response.data.pet;
+        // 更新宠物数据，确保名称保持为"奶龙"
+        this.pet = {
+          ...response.data.pet,
+          name: '奶龙'
+        };
         this.experienceToNextLevel = response.data.experienceToNextLevel;
         
         // 结束升级动画
@@ -418,10 +436,12 @@ export default {
           });
           
           const newHealth = response.data.health;
-          const newPet = response.data;
           
-          // 更新宠物数据
-          this.pet = newPet;
+          // 更新宠物数据，确保名称保持为"奶龙"
+          this.pet = {
+            ...response.data,
+            name: '奶龙'
+          };
           
           // 检查健康状态是否发生变化
           if (newHealth !== this.lastHealth) {
@@ -467,21 +487,65 @@ export default {
 
 <style scoped>
 .virtual-pet-page {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 20px;
   font-family: 'Arial', sans-serif;
 }
 
+.page-title {
+  color: #1e3d59;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-size: 32px;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 28px;
+  }
+  .pet-stats {
+    gap: 15px;
+  }
+  
+  .stat {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  .pet-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .steps-input {
+    flex-direction: column;
+  }
+  
+  .submit-steps-btn {
+    align-self: flex-end;
+  }
+}
+
 .pet-container {
-  background-color: #f8f9fa;
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.pet-container::before {
+  display: none;
 }
 
 .pet-info-card {
@@ -493,39 +557,93 @@ export default {
 }
 
 .pet-name {
-  font-size: 24px;
+  font-size: 30px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  position: relative;
+  display: inline-block;
+}
+
+.pet-name::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, #4CAF50, #2196F3);
+  border-radius: 2px;
 }
 
 .pet-stats {
   display: flex;
-  gap: 20px;
+  gap: 25px;
   flex-wrap: wrap;
   justify-content: center;
+  margin: 20px 0;
 }
 
 .stat {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.stat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat i {
+  font-size: 18px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: white;
+}
+
+.stat:nth-child(1) i {
+  background: linear-gradient(135deg, #FF9800, #FF5722);
+}
+
+.stat:nth-child(2) i {
+  background: linear-gradient(135deg, #F44336, #E91E63);
+}
+
+.stat:nth-child(3) i {
+  background: linear-gradient(135deg, #FFEB3B, #FFC107);
+}
+
+.stat:nth-child(4) i {
+  background: linear-gradient(135deg, #4CAF50, #8BC34A);
 }
 
 .experience-bar {
   width: 100%;
-  height: 24px;
-  background-color: #e0e0e0;
-  border-radius: 12px;
+  height: 28px;
+  background-color: rgba(240, 240, 240, 0.5);
+  border-radius: 14px;
   margin: 15px 0;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
 .experience-progress {
   height: 100%;
   background: linear-gradient(90deg, #4CAF50, #8BC34A);
-  transition: width 0.3s ease;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   position: relative;
   overflow: hidden;
 }
@@ -546,11 +664,6 @@ export default {
   animation: shimmer 2s infinite;
 }
 
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
 .experience-text {
   position: absolute;
   top: 50%;
@@ -564,6 +677,311 @@ export default {
   align-items: center;
   gap: 4px;
   white-space: nowrap;
+}
+
+.pet-animation-container {
+  width: 150px;
+  height: 180px;
+  position: relative;
+  margin: 40px 0 60px 0;
+  perspective: 1000px;
+  z-index: 2;
+}
+
+.pet-image {
+  width: 150px;
+  height: auto;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+}
+
+.pet-animation {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pet-animation::before {
+  content: '';
+  position: absolute;
+  width: 150%;
+  height: 20px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+  bottom: -20px;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.action-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  font-size: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  z-index: -1;
+}
+
+.action-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active {
+  transform: translateY(1px);
+}
+
+.feed-btn {
+  background: linear-gradient(135deg, #4caf50, #388e3c);
+  color: white;
+}
+
+.train-btn {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+  color: white;
+}
+
+.level-up-btn {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
+  color: white;
+}
+
+.steps-container {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  position: relative;
+}
+
+.steps-container::before {
+  display: none;
+}
+
+.steps-container h3 {
+  font-size: 22px;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  position: relative;
+  display: inline-block;
+}
+
+.steps-container h3::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, #2196F3, #03A9F4);
+  border-radius: 2px;
+}
+
+.steps-info, .carbon-info, .coins-info {
+  margin: 12px 0;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.steps-info::before {
+  content: '\f54b'; /* fa-walking */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  color: #2196f3;
+}
+
+.carbon-info {
+  color: #4caf50;
+}
+
+.carbon-info::before {
+  content: '\f06c'; /* fa-leaf */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  color: #4caf50;
+}
+
+.coins-info {
+  color: #ff9800;
+}
+
+.coins-info::before {
+  content: '\f51e'; /* fa-coins */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  color: #ff9800;
+}
+
+.steps-input {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.steps-input input {
+  flex-grow: 1;
+  padding: 12px 15px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.steps-input input:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+}
+
+.submit-steps-btn {
+  background: linear-gradient(135deg, #00bcd4, #0097a7);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.submit-steps-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
+}
+
+.steps-note {
+  font-size: 13px;
+  color: #888;
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.steps-note::before {
+  content: '\f05a'; /* fa-info-circle */
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  color: #888;
+}
+
+.info-section {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  position: relative;
+}
+
+.info-section::before {
+  display: none;
+}
+
+.info-section h3 {
+  font-size: 22px;
+  color: #2c3e50;
+  margin-bottom: 15px;
+  position: relative;
+  display: inline-block;
+}
+
+.info-section h3::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, #FF9800, #F57C00);
+  border-radius: 2px;
+}
+
+.info-section ul {
+  padding-left: 20px;
+  margin-top: 15px;
+}
+
+.info-section li {
+  margin-bottom: 10px;
+  position: relative;
+  padding-left: 5px;
+}
+
+.info-section li::marker {
+  color: #FF9800;
+}
+
+.warning-message {
+  margin: 20px 0;
+  padding: 15px 20px;
+  background: linear-gradient(to right, rgba(255, 243, 224, 0.9), rgba(255, 236, 179, 0.9));
+  border-left: 4px solid #FFB74D;
+  border-radius: 10px;
+  color: #E65100;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: 0 5px 15px rgba(255, 183, 77, 0.2);
+}
+
+.warning-message p:first-child {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.action-result {
+  margin: 20px 0;
+  padding: 15px 20px;
+  background: linear-gradient(to right, rgba(232, 245, 233, 0.9), rgba(200, 230, 201, 0.9));
+  border-left: 4px solid #81C784;
+  border-radius: 10px;
+  color: #2E7D32;
+  box-shadow: 0 5px 15px rgba(129, 199, 132, 0.2);
+}
+
+.action-result p {
+  margin: 5px 0;
+}
+
+/* 动画效果 */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .current-exp {
@@ -584,21 +1002,23 @@ export default {
   margin-left: 4px;
 }
 
-.pet-animation-container {
-  width: 80px;
-  height: 80px;
-  position: relative;
-  margin: 20px 0;
-  perspective: 1000px;
-}
-
-.pet-image {
-  width: 100%;
-  height: auto;
-  transition: transform 0.3s ease;
-}
-
 /* 动画类 */
+.pet-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
 .bounce {
   animation: bounce 1.5s ease;
 }
@@ -640,110 +1060,25 @@ export default {
   100% {transform: scale(1);}
 }
 
-.pet-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.action-btn {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: background-color 0.3s;
+/* 健康状态样式 */
+.health-healthy {
+  color: #4CAF50;
   font-weight: bold;
 }
 
-.action-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.health-good {
+  color: #2196F3;
+  font-weight: bold;
 }
 
-.feed-btn {
-  background-color: #4caf50;
-  color: white;
+.health-poor {
+  color: #FFC107;
+  font-weight: bold;
 }
 
-.train-btn {
-  background-color: #2196f3;
-  color: white;
-}
-
-.level-up-btn {
-  background-color: #f44336;
-  color: white;
-}
-
-.steps-container {
-  background-color: #f0f4ff;
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.steps-info, .carbon-info, .coins-info {
-  margin: 5px 0;
-}
-
-.carbon-info {
-  color: #4caf50;
-}
-
-.coins-info {
-  color: #ff9800;
-}
-
-.steps-input {
-  display: flex;
-  gap: 10px;
-  margin: 15px 0;
-}
-
-.steps-input input {
-  flex-grow: 1;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.submit-steps-btn {
-  background-color: #00bcd4;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 15px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.steps-note {
-  font-size: 12px;
-  color: #888;
-  margin-top: 10px;
-}
-
-.info-section {
-  background-color: #fafafa;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.info-section ul {
-  padding-left: 20px;
-}
-
-.info-section li {
-  margin-bottom: 8px;
+.health-malnourished {
+  color: #F44336;
+  font-weight: bold;
 }
 
 .training-info {
@@ -763,37 +1098,5 @@ export default {
   margin-bottom: 5px;
   font-size: 0.9em;
   color: #666;
-}
-
-.health-healthy {
-  color: #4CAF50;
-}
-
-.health-good {
-  color: #2196F3;
-}
-
-.health-poor {
-  color: #FFC107;
-}
-
-.health-malnourished {
-  color: #F44336;
-}
-
-.warning-message {
-  margin: 10px 0;
-  padding: 10px;
-  background-color: #FFF3E0;
-  border: 1px solid #FFB74D;
-  border-radius: 4px;
-  color: #E65100;
-}
-
-.action-result {
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #E8F5E9;
-  border-radius: 4px;
 }
 </style>

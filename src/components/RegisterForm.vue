@@ -71,16 +71,25 @@
             <input 
               type="text" 
               id="captcha" 
-              v-model.trim="captcha" 
+              v-model="captchaInput" 
               required 
               :disabled="isLoading"
               @input="clearError"
               maxlength="4"
-              placeholder="请输入验证码 (0000)"
+              pattern="[0-9]{4}"
+              placeholder="请输入验证码"
             />
           </div>
-          <div class="captcha-code">
-            0000
+          <div 
+            class="captcha-code" 
+            @click="generateCaptcha" 
+            title="当前验证码为随机生成"
+          >
+            <span
+              v-for="(digit, index) in captchaDisplay"
+              :key="index"
+              :style="getRandomStyle()"
+            >{{ digit }}</span>
           </div>
         </div>
       </div>
@@ -114,11 +123,14 @@ export default {
       email: '',
       password: '',
       confirmPassword: '',
-      captcha: '0000',
+      captchaInput: '',
+      captchaDisplay: '',  // 显示的验证码
+      systemCaptcha: '',   // 系统生成的验证码，用于比对
       errorMessage: '',
       isLoading: false,
       showPassword: false,
-      showConfirmPassword: false
+      showConfirmPassword: false,
+      refreshCount: 0
     };
   },
   computed: {
@@ -127,8 +139,13 @@ export default {
              this.email.trim() && 
              this.password && 
              this.password === this.confirmPassword &&
-             this.captcha.trim() === '0000';
+             this.captchaInput && 
+             this.captchaInput.length === 4;
     }
+  },
+  created() {
+    // 初始化生成随机验证码
+    this.generateCaptcha();
   },
   methods: {
     clearError() {
@@ -140,18 +157,63 @@ export default {
     toggleConfirmPassword() {
       this.showConfirmPassword = !this.showConfirmPassword;
     },
+    // 生成新的随机验证码
+    generateCaptcha() {
+      // 生成四位随机数字 (1000-9999)
+      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      const captchaString = randomNum.toString();
+      
+      // 设置显示验证码和系统验证码
+      this.captchaDisplay = captchaString;
+      this.systemCaptcha = captchaString;
+      this.captchaInput = ''; // 清空用户输入
+      
+      // 如果已经有输入框状态，添加刷新动画
+      const captchaElement = document.querySelector('.captcha-code');
+      if (captchaElement && this.refreshCount > 0) {
+        captchaElement.classList.add('refreshing');
+        setTimeout(() => {
+          captchaElement.classList.remove('refreshing');
+        }, 500);
+      }
+      
+      this.refreshCount++;
+      console.log(`生成新验证码: ${this.systemCaptcha}`);
+    },
+    // 为每个数字生成随机样式，增加视觉干扰
+    getRandomStyle() {
+      const rotation = Math.floor(Math.random() * 10) - 5;
+      const fontSize = 14 + Math.floor(Math.random() * 4);
+      const letterSpacing = Math.floor(Math.random() * 3) - 1;
+      
+      return {
+        transform: `rotate(${rotation}deg)`,
+        fontSize: `${fontSize}px`,
+        letterSpacing: `${letterSpacing}px`,
+        display: 'inline-block',
+        fontWeight: 'bold',
+        margin: '0 2px'
+      };
+    },
     async handleSubmit() {
       if (!this.isFormValid) {
         if (this.password !== this.confirmPassword) {
           this.errorMessage = '两次输入的密码不一致';
           return;
         }
-        if (this.captcha.trim() !== '0000') {
-          this.errorMessage = '验证码错误，请输入0000';
-          return;
-        }
         return;
       }
+      
+      // 检查验证码 - 与生成的验证码比对
+      if (this.captchaInput !== this.systemCaptcha) {
+        console.log(`验证码比对失败: 用户输入="${this.captchaInput}", 系统验证码="${this.systemCaptcha}"`);
+        this.errorMessage = '验证码错误，请重新输入';
+        this.captchaInput = '';
+        this.generateCaptcha(); // 生成新验证码
+        return;
+      }
+      
+      console.log("验证码校验通过，准备提交注册请求");
       
       this.isLoading = true;
       this.errorMessage = '';
@@ -160,14 +222,14 @@ export default {
         const registerData = {
           username: this.username.trim(),
           email: this.email.trim(),
-          password: this.password.trim(),
-          captcha: this.captcha.trim()
+          password: this.password,
+          captcha: "0000" // 固定发送"0000"给后端，保持兼容
         };
         
         console.log('正在发送注册请求:', {
-          url: `${axiosConfig.baseURL}${API_URLS.register}`,
-          username: registerData.username,
-          email: registerData.email
+          用户名: registerData.username,
+          邮箱: registerData.email,
+          验证码: "固定发送0000"
         });
         
         const response = await api.post(API_URLS.register, registerData);
@@ -183,6 +245,7 @@ export default {
         // 如果没有成功消息但服务器返回了消息
         if (response.data && response.data.message) {
           this.errorMessage = response.data.message;
+          this.generateCaptcha();
           return;
         }
       } catch (error) {
@@ -206,8 +269,10 @@ export default {
             default:
               this.errorMessage = errorData?.message || '注册失败，请稍后重试';
           }
+          this.generateCaptcha();
         } else {
           this.errorMessage = '无法连接到服务器，请检查网络连接';
+          this.generateCaptcha();
         }
       } finally {
         this.isLoading = false;
@@ -219,43 +284,79 @@ export default {
 
 <style scoped>
 .register-form {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
+  margin: 1rem auto;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
-h2 {
+.register-form:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.register-form h2 {
   text-align: center;
-  margin-bottom: 1.5rem;
-  color: #333;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.register-form h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #4CA1AF, #2C3E50);
+  border-radius: 3px;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
-label {
+.form-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
   font-weight: 500;
-  color: #555;
+  color: #455a64;
+  font-size: 0.9rem;
 }
 
-input {
+.form-group input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
+  padding: 0.6rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
-input:focus {
-  border-color: #4CAF50;
+.form-group input:focus {
   outline: none;
+  border-color: #4CA1AF;
+  box-shadow: 0 0 0 3px rgba(76, 161, 175, 0.2);
+  background-color: #fff;
+}
+
+.form-group input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
 }
 
 .password-input {
@@ -264,16 +365,22 @@ input:focus {
 
 .password-input i {
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
-  color: #777;
+  color: #78909c;
+  transition: all 0.2s ease;
+}
+
+.password-input i:hover {
+  color: #455a64;
 }
 
 .captcha-group {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 8px;
 }
 
 .captcha-input {
@@ -281,61 +388,151 @@ input:focus {
 }
 
 .captcha-code {
-  background-color: #f0f0f0;
-  padding: 0.75rem;
-  border-radius: 4px;
-  font-family: monospace;
+  padding: 0.5rem;
+  background-color: #f5f5f5;
+  border-radius: 8px;
   font-weight: bold;
-  color: #333;
-  min-width: 80px;
+  letter-spacing: 1px;
+  min-width: 70px;
   text-align: center;
+  border: 2px solid #e0e0e0;
+  color: #2c3e50;
+  user-select: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: linear-gradient(45deg, #f5f5f5 25%, #e8e8e8 25%, #e8e8e8 50%, #f5f5f5 50%, #f5f5f5 75%, #e8e8e8 75%, #e8e8e8);
+  background-size: 8px 8px;
+}
+
+.captcha-code:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.02);
+}
+
+.captcha-code::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.1);
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.captcha-code::after {
+  content: '点击刷新';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  color: #78909c;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.captcha-code:hover::after {
+  opacity: 1;
+}
+
+.refreshing {
+  animation: refresh-animation 0.5s;
+}
+
+@keyframes refresh-animation {
+  0% { transform: rotate(0); opacity: 1; }
+  50% { transform: rotate(10deg); opacity: 0.5; }
+  100% { transform: rotate(0); opacity: 1; }
 }
 
 button {
   width: 100%;
-  padding: 0.75rem;
-  background-color: #4CAF50;
+  padding: 0.7rem;
+  background: linear-gradient(90deg, #4CA1AF, #2C3E50);
   color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
-  margin-top: 1rem;
+  transition: all 0.3s ease;
+  margin-top: 0.8rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-button:hover {
-  background-color: #45a049;
+button:hover:not(:disabled) {
+  background: linear-gradient(90deg, #3c8997, #1a2c3f);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
 button:disabled {
-  background-color: #cccccc;
+  background: #cccccc;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .error-container {
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background-color: #ffebee;
-  color: #c62828;
+  margin-top: 0.8rem;
+  padding: 0.5rem;
+  background-color: rgba(255, 76, 76, 0.1);
+  border-left: 3px solid #ff4c4c;
+  color: #d32f2f;
   border-radius: 4px;
+  font-size: 0.8rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+}
+
+.error-container i {
+  margin-right: 8px;
+  font-size: 1rem;
 }
 
 .login-link {
-  margin-top: 1rem;
   text-align: center;
-  font-size: 0.9rem;
+  margin-top: 0.8rem;
+  color: #455a64;
+  font-size: 0.85rem;
 }
 
 .login-link a {
-  color: #4CAF50;
+  color: #4CA1AF;
   text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 .login-link a:hover {
+  color: #2C3E50;
   text-decoration: underline;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.fa-spinner {
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+/* 去除number类型输入框的上下箭头 */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 </style> 

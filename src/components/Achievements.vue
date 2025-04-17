@@ -1,6 +1,6 @@
 <template>
   <div class="achievements-page">
-    <h2>我的成就</h2>
+    <h2 class="page-title">我的成就</h2>
     
     <!-- 错误提示 -->
     <div v-if="error" class="error-message">
@@ -44,18 +44,24 @@
     <div v-if="!loading && !error && !checkingAchievements">
       <div class="achievement-summary">
         <div class="summary-card">
-          <h3>成就总数</h3>
-          <div class="summary-count">{{ getUnlockedAchievementsCount() }} / {{ achievementTypes && achievementTypes.length || 0 }}</div>
+          <div class="summary-card-content">
+            <div class="card-title">成就总数</div>
+            <div class="summary-count">{{ getUnlockedAchievementsCount() }} / {{ achievementTypes && achievementTypes.length || 0 }}</div>
+          </div>
         </div>
         
         <div class="summary-card">
-          <h3>减排总量</h3>
-          <div class="summary-count carbon-value">{{ userRank && userRank.carbon_reduction ? Number(userRank.carbon_reduction).toFixed(1) : carbonReduction.toFixed(1) }} kg CO₂</div>
+          <div class="summary-card-content">
+            <div class="card-title">减排总量</div>
+            <div class="summary-count carbon-value">{{ userRank && userRank.carbon_reduction ? Number(userRank.carbon_reduction).toFixed(1) : carbonReduction.toFixed(1) }} kg CO₂</div>
+          </div>
         </div>
         
         <div class="summary-card">
-          <h3>排行榜排名</h3>
-          <div class="summary-count rank-value">#{{ userRank && userRank.rank ? userRank.rank : 'N/A' }}</div>
+          <div class="summary-card-content">
+            <div class="card-title">排行榜排名</div>
+            <div class="summary-count rank-value">#{{ userRank && userRank.rank ? userRank.rank : 'N/A' }}</div>
+          </div>
         </div>
       </div>
       
@@ -398,150 +404,371 @@ export default {
 
 <style scoped>
 .achievements-page {
-  max-width: 800px;
+  max-width: 1050px;
+  min-height: 80vh;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px 35px;
   font-family: 'Arial', sans-serif;
   position: relative;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  z-index: 2;
 }
 
+/* 添加壁纸背景效果 */
+.achievements-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../assets/carbon_5.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  filter: brightness(0.9) saturate(1.1) contrast(1.1);
+  z-index: -1;
+  opacity: 0.9;
+}
+
+/* 添加装饰元素 */
+.achievements-page::after {
+  content: '🏆';
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 40px;
+  opacity: 0.1;
+  transform: rotate(15deg);
+  filter: blur(2px);
+  animation: float 6s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(15deg); }
+  50% { transform: translateY(-15px) rotate(12deg); }
+}
+
+/* 修改页面标题样式，与虚拟宠物页面保持一致 */
+.page-title {
+  color: #1e3d59;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-size: 32px;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 32px;
+  }
+  
+  .achievement-summary {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .summary-card {
+    padding: 18px;
+  }
+  
+  .summary-count, .carbon-value, .rank-value {
+    font-size: 36px;
+  }
+}
+
+.page-actions {
+  display: none;
+}
+
+/* 统一数据卡片样式 */
 .achievement-summary {
   display: flex;
   gap: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
+  perspective: 1000px;
+  padding: 10px 5px;
 }
 
 .summary-card {
   flex: 1;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  padding: 15px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  padding: 20px 15px;
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.summary-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  position: relative;
+  overflow: hidden;
+  animation: cardAppear 0.6s forwards;
+  animation-delay: calc(var(--i, 0) * 0.15s);
+  opacity: 0;
+  transform: translateY(15px) rotateX(10deg);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
 }
 
 .summary-card h3 {
-  margin-top: 0;
-  color: #555;
-  font-size: 14px;
+  margin: 0 0 15px 0;
+  color: #1e3d59;
+  font-size: 16px;
+  font-weight: 500;
+  position: relative;
+  display: block;
+  letter-spacing: 0.5px;
+  z-index: 2;
+  opacity: 0.7;
+  text-align: center;
 }
 
 .summary-count {
-  font-size: 24px;
-  font-weight: bold;
-  color: #2196F3;
-}
-
-.carbon-value {
-  background: linear-gradient(135deg, #4CAF50, #8BC34A);
+  font-size: 42px;
+  font-weight: 700;
+  margin: 10px 0 0 0;
+  position: relative;
+  display: block;
+  color: #1e3d59;
+  background: linear-gradient(135deg, #1e3d59, #64B5F6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-size: 26px;
-  font-weight: bold;
+  text-shadow: 0 3px 5px rgba(0,0,0,0.05);
+  z-index: 2;
+  line-height: 1.2;
 }
 
-.rank-value {
-  background: linear-gradient(135deg, #2196F3, #03A9F4);
+.carbon-value, .rank-value {
+  background: linear-gradient(135deg, #1e3d59, #64B5F6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-size: 26px;
-  font-weight: bold;
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 10px 0 0 0;
+  display: block;
 }
 
+/* 调整卡片内部布局 */
+.summary-card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* 将绿色系改为蓝色系 */
 .section-title {
-  margin: 30px 0 15px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #f0f0f0;
-  color: #424242;
+  margin: 40px 0 25px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  color: #1e3d59;
+  font-size: 22px;
+  position: relative;
+  animation: fadeIn 0.6s ease-out;
+  animation-delay: 0.3s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100px;
+  height: 3px;
+  border-radius: 1.5px;
+}
+
+.section-title:nth-of-type(1)::after {
+  background: linear-gradient(90deg, #1e3d59, #64B5F6);
+}
+
+.section-title:nth-of-type(2)::after {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
 }
 
 .section-title i {
-  margin-right: 8px;
-  color: #4CAF50;
+  margin-right: 12px;
+  position: relative;
+  top: 1px;
+}
+
+.section-title:nth-of-type(1) i {
+  color: #1e3d59;
+}
+
+.section-title:nth-of-type(2) i {
+  color: #e74c3c;
 }
 
 .achievements-status {
-  margin-top: 20px;
+  margin: 35px 0;
   text-align: center;
 }
 
 .status-message {
-  padding: 10px 15px;
-  border-radius: 8px;
+  padding: 16px 28px;
+  border-radius: 50px;
   display: inline-block;
+  font-size: 16px;
+  font-weight: 500;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  animation: fadeIn 0.6s ease-out;
+  animation-delay: 0.3s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(4px);
+}
+
+.status-message::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: linear-gradient(45deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+  transform: rotate(25deg) translateX(-200%);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  to { transform: rotate(25deg) translateX(200%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .unlocked-message {
-  background-color: rgba(76, 175, 80, 0.1);
-  color: #2E7D32;
+  background-color: rgba(33, 150, 243, 0.12);
+  color: #044a87;
+  border: 1px solid rgba(33, 150, 243, 0.3);
 }
 
 .locked-message {
-  background-color: rgba(158, 158, 158, 0.1);
-  color: #616161;
+  background-color: rgba(158, 158, 158, 0.12);
+  color: #424242;
+  border: 1px solid rgba(158, 158, 158, 0.3);
 }
 
 .status-message i {
-  margin-right: 8px;
+  margin-right: 10px;
+  font-size: 18px;
 }
 
 .achievement-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+  border-top: none;
+  padding-top: 5px;
+  perspective: 1000px;
 }
 
 .achievement-card {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  padding: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 22px;
   display: flex;
   align-items: center;
-  gap: 15px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
-  border-left: 4px solid transparent;
+  gap: 22px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border-left: 5px solid transparent;
+  position: relative;
+  overflow: hidden;
+  animation: cardFadeIn 0.6s forwards;
+  animation-delay: calc(var(--j, 0) * 0.1s);
+  opacity: 0;
+  transform: translateY(15px);
+  backdrop-filter: blur(4px);
+}
+
+.achievement-card:nth-child(3n+1) { --j: 1; }
+.achievement-card:nth-child(3n+2) { --j: 2; }
+.achievement-card:nth-child(3n+3) { --j: 3; }
+
+@keyframes cardFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.achievement-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.8), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .achievement-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 15px 35px rgba(30, 61, 89, 0.2);
+}
+
+.achievement-card:hover::before {
+  opacity: 1;
 }
 
 .achievement-card.unlocked {
-  background: linear-gradient(to right, rgba(76, 175, 80, 0.1), rgba(255, 255, 255, 0.8));
-  border-left: 4px solid #4CAF50;
+  background: linear-gradient(to right, rgba(30, 61, 89, 0.08), rgba(255, 255, 255, 0.9));
+  border-left: 5px solid #1e3d59;
 }
 
 .achievement-card.locked {
-  background-color: #f5f5f5;
+  background: rgba(250, 250, 250, 0.85);
   opacity: 0.9;
-  border-left: 4px solid #e0e0e0;
+  border-left: 5px solid #bdbdbd;
 }
 
 .achievement-icon {
-  width: 50px;
-  height: 50px;
-  background-color: #e0e0e0;
+  width: 65px;
+  height: 65px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  font-size: 24px;
+  transition: all 0.5s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .achievement-card.unlocked .achievement-icon {
-  background: linear-gradient(135deg, #4CAF50, #8BC34A);
-  box-shadow: 0 4px 8px rgba(76,175,80,0.3);
+  background: linear-gradient(135deg, #1e3d59, #64B5F6);
+  box-shadow: 0 10px 25px rgba(30, 61, 89, 0.4);
+  transform: scale(1.05);
+}
+
+.achievement-card.unlocked:hover .achievement-icon {
+  animation: pulse 2s infinite;
 }
 
 .achievement-info {
@@ -549,136 +776,205 @@ export default {
 }
 
 .achievement-info h3 {
-  margin: 0 0 5px 0;
-  font-size: 16px;
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #2c3e50;
+  font-weight: 600;
+  position: relative;
+}
+
+.achievement-card.unlocked .achievement-info h3 {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .achievement-info p {
-  margin: 0 0 10px 0;
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+.unlock-date, .locked-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 50px;
   font-size: 12px;
-  color: #666;
+  margin-top: 10px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 2;
+  backdrop-filter: blur(2px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
 }
 
 .unlock-date {
-  display: inline-block;
-  padding: 4px 8px;
-  background-color: rgba(76,175,80,0.2);
-  color: #2E7D32;
-  border-radius: 4px;
-  font-size: 12px;
-  margin-top: 8px;
+  background-color: rgba(30, 61, 89, 0.1);
+  color: #1e3d59;
+  border: 1px solid rgba(30, 61, 89, 0.2);
 }
 
 .locked-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  background-color: #e0e0e0;
-  color: #757575;
-  border-radius: 4px;
-  font-size: 12px;
-  margin-top: 8px;
+  background-color: rgba(224, 224, 224, 0.5);
+  color: #616161;
+  border: 1px solid rgba(224, 224, 224, 0.8);
 }
 
 .unlock-hint {
-  font-size: 12px;
-  color: #9e9e9e;
-  margin-top: 10px;
+  font-size: 13px;
+  color: #757575;
+  margin-top: 12px;
   font-style: italic;
-  line-height: 1.4;
+  line-height: 1.5;
+  padding-left: 10px;
+  border-left: 3px solid #e0e0e0;
+  transition: all 0.3s ease;
+  background-color: rgba(250, 250, 250, 0.5);
+  padding: 8px 12px;
+  border-radius: 0 8px 8px 0;
+}
+
+.achievement-card:hover .unlock-hint {
+  border-left-color: #1e3d59;
+  color: #4e4e4e;
+  background-color: rgba(250, 250, 250, 0.8);
 }
 
 .check-achievements {
   text-align: center;
-  margin-bottom: 30px;
+  margin: 40px 0 10px;
 }
 
+/* 修改按钮颜色为蓝色系 */
 .check-btn {
-  background: linear-gradient(135deg, #2196F3, #03A9F4);
+  background: linear-gradient(135deg, #1e3d59, #64B5F6);
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 25px;
+  padding: 14px 30px;
+  border-radius: 50px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 3px 6px rgba(33, 150, 243, 0.3);
+  box-shadow: 0 10px 30px rgba(30, 61, 89, 0.3);
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.5px;
 }
 
 .check-btn:hover {
-  background: linear-gradient(135deg, #1976D2, #0288D1);
+  background: linear-gradient(135deg, #15324a, #42A5F5);
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(30, 61, 89, 0.4);
+}
+
+.check-btn:active {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
 }
 
 .check-btn:disabled {
   background: linear-gradient(135deg, #B0BEC5, #90A4AE);
   cursor: not-allowed;
   transform: none;
-  box-shadow: none;
+  box-shadow: 0 3px 10px rgba(176,190,197,0.3);
 }
 
 .error-message {
-  background-color: #ffebee;
-  color: #c62828;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  background-color: #fff5f5;
+  color: #e53935;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  border-left: 4px solid #c62828;
+  gap: 15px;
+  font-size: 15px;
+  border-left: 5px solid #e53935;
+  box-shadow: 0 8px 25px rgba(229,57,53,0.15);
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
 .error-message i {
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .empty-state {
   text-align: center;
-  padding: 40px 20px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  margin: 30px 0;
+  padding: 70px 30px;
+  background-color: rgba(249, 249, 249, 0.6);
+  border-radius: 15px;
+  margin: 50px 0;
+  border: 1px dashed #e0e0e0;
+  animation: fadeIn 0.6s ease-out;
 }
 
 .empty-icon {
-  font-size: 50px;
+  font-size: 70px;
   color: #bdbdbd;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  animation: bounceIn 1s ease-out;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .empty-state p {
-  margin: 5px 0;
-  color: #616161;
+  margin: 10px 0;
+  color: #424242;
+  font-size: 20px;
 }
 
 .empty-description {
-  font-size: 14px;
-  color: #9e9e9e;
+  font-size: 15px;
+  color: #757575;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
 }
 
 .loading-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 200px;
-  margin: 30px 0;
+  min-height: 300px;
+  margin: 40px 0;
 }
 
 .loading-message {
   text-align: center;
-  color: #757575;
+  color: #424242;
 }
 
 .loading-message i {
-  font-size: 40px;
+  font-size: 50px;
   color: #2196F3;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   display: block;
+  animation: spin 1.5s infinite linear;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-message p {
+  font-size: 18px;
+  font-weight: 500;
 }
 
 /* 检查成就模态框 */
@@ -688,41 +984,54 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(5px);
 }
 
 .checking-content {
   background-color: #fff;
-  border-radius: 12px;
-  padding: 30px;
-  width: 90%;
+  border-radius: 20px;
+  padding: 40px 30px;
+  width: 95%;
   max-width: 500px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   text-align: center;
+  animation: modalSlideUp 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 .checking-content i.fa-spinner {
-  font-size: 50px;
+  font-size: 70px;
   color: #2196F3;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   display: block;
+  animation: spin 1.5s infinite linear;
 }
 
 .checking-content p {
-  font-size: 18px;
-  color: #424242;
-  margin-bottom: 20px;
+  font-size: 22px;
+  color: #1e3d59;
+  margin-bottom: 25px;
+  font-weight: 500;
 }
 
 .check-result {
-  margin-top: 20px;
-  padding: 20px;
-  border-radius: 8px;
+  margin-top: 30px;
+  padding: 30px;
+  border-radius: 15px;
   background-color: #f5f5f5;
+  animation: fadeIn 0.5s ease-out;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .check-result.success {
@@ -730,57 +1039,146 @@ export default {
 }
 
 .check-result i {
-  font-size: 30px;
+  font-size: 50px;
   color: #607D8B;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .check-result.success i {
   color: #4CAF50;
+  animation: trophy 1s ease-out;
+}
+
+@keyframes trophy {
+  0% { transform: scale(0.8) rotate(-15deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(10deg); }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.check-result p {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #424242;
 }
 
 .dismiss-btn {
   background-color: #607D8B;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 25px;
+  padding: 12px 40px;
+  border-radius: 50px;
   cursor: pointer;
-  font-size: 14px;
-  margin-top: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 25px;
   transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(96,125,139,0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.dismiss-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
 }
 
 .dismiss-btn:hover {
   background-color: #455A64;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(96,125,139,0.4);
+}
+
+.dismiss-btn:hover::before {
+  transform: translateX(100%);
 }
 
 .dismiss-btn.success {
-  background-color: #4CAF50;
+  background-color: #2196F3;
+  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
 }
 
 .dismiss-btn.success:hover {
-  background-color: #388E3C;
+  background-color: #1976D2;
+  box-shadow: 0 12px 30px rgba(33, 150, 243, 0.4);
 }
 
 .new-achievements-list {
-  margin: 15px 0;
+  margin: 25px 0;
 }
 
 .new-achievement-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 10px 0;
-  padding: 10px;
-  background-color: rgba(76, 175, 80, 0.1);
-  border-radius: 6px;
-  font-size: 14px;
+  gap: 15px;
+  margin: 15px 0;
+  padding: 18px;
+  background-color: rgba(33, 150, 243, 0.08);
+  border-radius: 12px;
+  font-size: 16px;
+  border-left: 3px solid #2196F3;
+  text-align: left;
+  animation: slideIn 0.5s ease-out;
+  animation-delay: calc(var(--k, 0) * 0.2s);
+  opacity: 0;
+  transform: translateX(-20px);
+  animation-fill-mode: forwards;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.15);
+}
+
+.new-achievement-item:nth-child(1) { --k: 1; }
+.new-achievement-item:nth-child(2) { --k: 2; }
+.new-achievement-item:nth-child(3) { --k: 3; }
+
+@keyframes slideIn {
+  to { transform: translateX(0); opacity: 1; }
 }
 
 .new-achievement-item i {
-  color: #4CAF50;
-  font-size: 16px;
+  color: #2196F3;
+  font-size: 22px;
   margin: 0;
+  width: 40px;
+  height: 40px;
+  background: rgba(33, 150, 243, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* 恢复卡片动画相关代码 */
+.summary-card:nth-child(1) { --i: 1; }
+.summary-card:nth-child(2) { --i: 2; }
+.summary-card:nth-child(3) { --i: 3; }
+
+@keyframes cardAppear {
+  to {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+  }
+}
+
+/* 修改脉冲动画使用蓝色 */
+@keyframes pulse {
+  0% { transform: scale(1.05); }
+  50% { transform: scale(1.15); box-shadow: 0 10px 30px rgba(30, 61, 89, 0.6); }
+  100% { transform: scale(1.05); }
+}
+
+/* 添加卡片标题的样式 */
+.card-title {
+  color: #1e3d59;
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.7;
+  margin-bottom: 15px;
+  text-align: center;
 }
 </style>

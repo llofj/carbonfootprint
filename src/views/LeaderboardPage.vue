@@ -1,10 +1,11 @@
 <template>
   <div>
     <Navbar />
-    <div class="content">
+    <div class="content leaderboard-page">
       <div class="back-to-home">
         <button @click="goHome" class="back-btn">
-          <i class="fas fa-home"></i> 返回主页
+          <i class="fas fa-home"></i>
+          <span>返回主页</span>
         </button>
       </div>
       <Leaderboard />
