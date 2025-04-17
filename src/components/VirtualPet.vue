@@ -40,7 +40,7 @@
       
       <div class="pet-animation-container">
         <div class="pet-animation" :class="animationClass">
-          <img src="@/assets/nailong.png" alt="奶龙" class="pet-image">
+          <img src="@/assets/pet_dog.png" alt="碳宝" class="pet-image">
         </div>
       </div>
       
@@ -126,7 +126,7 @@ export default {
   data() {
     return {
       pet: {
-        name: '奶龙',
+        name: '碳宝',
         level: 1,
         health: '健康',
         coins: 0,
@@ -177,10 +177,10 @@ export default {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      // 保存后端数据但确保宠物名称为"奶龙"
+      // 保存后端数据但确保宠物名称为"碳宝"
       this.pet = {
         ...response.data,
-        name: '奶龙'
+        name: '碳宝'
       };
       this.lastHealth = this.pet.health;
       this.experienceToNextLevel = response.data.experienceToNextLevel;
@@ -223,10 +223,10 @@ export default {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        // 确保宠物名称保持为"奶龙"
+        // 确保宠物名称保持为"碳宝"
         this.pet = {
           ...response.data.pet,
-          name: '奶龙'
+          name: '碳宝'
         };
         this.steps = response.data.stepsProcessed;
         this.carbonReduction = response.data.carbonReduction;
@@ -265,10 +265,10 @@ export default {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        // 更新宠物数据和健康状态，确保名称保持为"奶龙"
+        // 更新宠物数据和健康状态，确保名称保持为"碳宝"
         this.pet = {
           ...response.data.pet,
-          name: '奶龙'
+          name: '碳宝'
         };
         this.lastHealth = this.pet.health;
         
@@ -304,10 +304,10 @@ export default {
           headers: { Authorization: `Bearer ${token}` }
         });
         
-        // 更新宠物数据，确保名称保持为"奶龙"
+        // 更新宠物数据，确保名称保持为"碳宝"
         this.pet = {
           ...response.data.pet,
-          name: '奶龙'
+          name: '碳宝'
         };
         this.experienceToNextLevel = response.data.experienceToNextLevel;
         
@@ -356,10 +356,10 @@ export default {
         this.tempExperiencePercentage = 0;
         await new Promise(resolve => setTimeout(resolve, 100));
         
-        // 更新宠物数据，确保名称保持为"奶龙"
+        // 更新宠物数据，确保名称保持为"碳宝"
         this.pet = {
           ...response.data.pet,
-          name: '奶龙'
+          name: '碳宝'
         };
         this.experienceToNextLevel = response.data.experienceToNextLevel;
         
@@ -437,10 +437,10 @@ export default {
           
           const newHealth = response.data.health;
           
-          // 更新宠物数据，确保名称保持为"奶龙"
+          // 更新宠物数据，确保名称保持为"碳宝"
           this.pet = {
             ...response.data,
-            name: '奶龙'
+            name: '碳宝'
           };
           
           // 检查健康状态是否发生变化
