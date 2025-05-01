@@ -1,0 +1,109 @@
+/* 返回主页按钮通用样式 */
+.back-to-home .back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  background: linear-gradient(135deg, #2c3e50, #4CAF50);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.back-to-home .back-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #4CAF50, #2c3e50);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.back-to-home .back-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.back-to-home .back-btn:hover::before {
+  opacity: 1;
+}
+
+.back-to-home .back-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.back-to-home .back-btn i {
+  font-size: 16px;
+  transition: transform 0.3s ease;
+}
+
+.back-to-home .back-btn:hover i {
+  transform: translateX(-3px);
+}
+
+/* 根据不同页面背景定制样式 */
+.carbon-reduction-page .back-to-home .back-btn {
+  background: linear-gradient(135deg, #1e3d59, #4CAF50);
+}
+
+.carbon-reduction-page .back-to-home .back-btn::before {
+  background: linear-gradient(135deg, #4CAF50, #1e3d59);
+}
+
+.calculator-page .back-to-home .back-btn {
+  background: linear-gradient(135deg, #2c3e50, #4CAF50);
+}
+
+.calculator-page .back-to-home .back-btn::before {
+  background: linear-gradient(135deg, #4CAF50, #2c3e50);
+}
+
+.leaderboard-page .back-to-home .back-btn {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+}
+
+.leaderboard-page .back-to-home .back-btn::before {
+  background: linear-gradient(135deg, #2575fc, #6a11cb);
+}
+
+.virtual-pet-page .back-to-home .back-btn {
+  background: linear-gradient(135deg, #ff9966, #ff5e62);
+}
+
+.virtual-pet-page .back-to-home .back-btn::before {
+  background: linear-gradient(135deg, #ff5e62, #ff9966);
+}
+
+.achievements-page .back-to-home .back-btn {
+  background: linear-gradient(135deg, #4b6cb7, #182848);
+}
+
+.achievements-page .back-to-home .back-btn::before {
+  background: linear-gradient(135deg, #182848, #4b6cb7);
+}
+
+/* 媒体查询适配移动设备 */
+@media (max-width: 768px) {
+  .back-to-home .back-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  
+  .back-to-home .back-btn i {
+    font-size: 14px;
+  }
+} 

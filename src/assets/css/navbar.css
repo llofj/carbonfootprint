@@ -1,0 +1,289 @@
+/* 导航栏高级样式 */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 2.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+  padding: 0.5rem 2.5rem;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand .logo {
+  font-size: 1.6rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #1e3d59, #4CAF50);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding-left: 32px;
+  transition: all 0.3s ease;
+}
+
+.navbar-brand .logo::before {
+  content: '🌱';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+}
+
+.navbar-brand .logo:hover {
+  transform: translateY(-1px);
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 2.5rem;
+  position: relative;
+}
+
+.nav-item {
+  color: #2c3e50;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 0;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 3px;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(to right, #4CAF50, #1e3d59);
+  transition: width 0.3s ease;
+  border-radius: 3px;
+}
+
+.nav-item:not(.disabled):hover {
+  color: #4CAF50;
+}
+
+.nav-item:not(.disabled):hover::after {
+  width: 100%;
+}
+
+.nav-item.router-link-active {
+  color: #4CAF50;
+}
+
+.nav-item.router-link-active::after {
+  width: 100%;
+}
+
+.nav-item.disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.navbar-end {
+  display: flex;
+  align-items: center;
+}
+
+.user-icon {
+  cursor: pointer;
+  padding: 0.7rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  width: 2.2rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.user-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.user-icon i {
+  font-size: 1.1rem;
+  color: #1e3d59;
+  transition: all 0.3s ease;
+}
+
+.user-icon:hover i {
+  color: #4CAF50;
+}
+
+.username {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem 0.5rem 1.2rem;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 50px;
+  font-weight: 500;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  color: #1e3d59;
+  position: relative;
+}
+
+.username::before {
+  content: '👤';
+  position: absolute;
+  left: 12px;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.username:hover {
+  padding-left: 2.2rem;
+}
+
+.username:hover::before {
+  opacity: 1;
+}
+
+.logout-btn {
+  padding: 0.4rem 0.9rem;
+  border: none;
+  background: linear-gradient(135deg, #ff5e62, #ff9966);
+  color: white;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(255, 94, 98, 0.3);
+}
+
+.logout-btn:hover {
+  background: linear-gradient(135deg, #ff4d51, #ff8855);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgba(255, 94, 98, 0.4);
+}
+
+/* 页面特定导航栏样式 */
+.virtual-pet-page .navbar {
+  background: linear-gradient(90deg, rgba(255, 153, 102, 0.05), rgba(255, 94, 98, 0.05)), rgba(255, 255, 255, 0.95);
+}
+
+.virtual-pet-page .navbar-brand .logo {
+  background: linear-gradient(135deg, #ff9966, #ff5e62);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.virtual-pet-page .nav-item:not(.disabled):hover,
+.virtual-pet-page .nav-item.router-link-active {
+  color: #ff7e70;
+}
+
+.virtual-pet-page .nav-item::after {
+  background: linear-gradient(to right, #ff9966, #ff5e62);
+}
+
+.leaderboard-page .navbar {
+  background: linear-gradient(90deg, rgba(106, 17, 203, 0.05), rgba(37, 117, 252, 0.05)), rgba(255, 255, 255, 0.95);
+}
+
+.leaderboard-page .navbar-brand .logo {
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.leaderboard-page .nav-item:not(.disabled):hover,
+.leaderboard-page .nav-item.router-link-active {
+  color: #2575fc;
+}
+
+.leaderboard-page .nav-item::after {
+  background: linear-gradient(to right, #6a11cb, #2575fc);
+}
+
+.achievements-page .navbar {
+  background: linear-gradient(90deg, rgba(75, 108, 183, 0.05), rgba(24, 40, 72, 0.05)), rgba(255, 255, 255, 0.95);
+}
+
+.achievements-page .navbar-brand .logo {
+  background: linear-gradient(135deg, #4b6cb7, #182848);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.achievements-page .nav-item:not(.disabled):hover,
+.achievements-page .nav-item.router-link-active {
+  color: #4b6cb7;
+}
+
+.achievements-page .nav-item::after {
+  background: linear-gradient(to right, #4b6cb7, #182848);
+}
+
+/* 滚动监听功能的JavaScript:
+document.addEventListener('scroll', () => {
+  const navbar = document.querySelector('.navbar');
+  if (window.scrollY > 20) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
+});
+*/
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.7rem 1.5rem;
+  }
+  
+  .navbar-menu {
+    gap: 1.5rem;
+  }
+  
+  .navbar-brand .logo {
+    font-size: 1.4rem;
+    padding-left: 28px;
+  }
+  
+  .navbar-brand .logo::before {
+    font-size: 1.3rem;
+  }
+  
+  .nav-item {
+    font-size: 0.9rem;
+  }
+  
+  .username {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem 0.4rem 1rem;
+  }
+  
+  .logout-btn {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+  }
+} 

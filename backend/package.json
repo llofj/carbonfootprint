@@ -1,0 +1,23 @@
+{
+    "name": "carbon-footprint-backend",
+    "version": "1.0.0",
+    "description": "Backend for Carbon Footprint Visualization Platform",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js",
+        "dev": "nodemon server.js"
+    },
+    "author": "Your Name",
+    "license": "ISC",
+    "dependencies": {
+        "bcrypt": "^5.0.1",
+        "cors": "^2.8.5",
+        "express": "^4.21.2",
+        "jsonwebtoken": "^8.5.1",
+        "pg": "^8.7.1",
+        "svg-captcha": "^1.4.0"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.12"
+    }
+}
